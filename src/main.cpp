@@ -1,5 +1,6 @@
 #include "../include/special/std_libraries.h"
 #include "../include/exception.h"
+#include "../include/lexer.h"
 
 std::string readSourceCode(std::string source_code_file)
 {
@@ -16,11 +17,30 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		if (argc != 2)
+		if (argc < 2)
 			throw Exception("Nie podano pliku źródłowego", NO_SOURCE_FILE);
-
 		std::string source_code = readSourceCode(argv[1]);
-		std::cout << source_code << std::endl;
+
+		bool debug = false;
+		if (argc >= 3)
+		{
+			if (argv[2] == std::string("DEBUG_ON"))
+			{
+				debug = true;
+			}
+			else if (argv[2] == std::string("DEBUG_OFF"))
+			{
+				debug = false;
+			}
+			else
+			{
+				std::cout << argv[2] << " : " << (argv[2] == std::string("DEBUG_ON")) << std::endl;
+				throw Exception("Niepoprawna wartość argumentu na pozycji 2", BAD_ARGUMENT_VALUE);
+			}
+		}
+
+		Lexer lexer(source_code, debug);
+		lexer.lex();
 	}
 	catch (Exception e)
 	{
