@@ -17,7 +17,7 @@ public:
         this->line_number = line_number_v;
     }
 
-    void Print()
+    void printMessage()
     {
         std::cout << "[ERROR CODE " << this->return_code << "] " << this->message;
         if (this->line_number != -1)
