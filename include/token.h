@@ -1,5 +1,18 @@
 #include "special/std_libraries.h"
 
+const std::string TokenTypeName[] = {
+    "END_OF_STATEMENT",
+    "NUMERIC_VALUE",
+    "OPERATOR_PLUS",
+    "OPERATOR_MINUS",
+    "OPERATOR_MULITPLY",
+    "OPERATOR_DIVIDE",
+    "OPERATOR_MODULO",
+    "L_PARENTHESIS",
+    "R_PARENTHESIS",
+    "SYMBOLIC_NAME",
+};
+
 enum TokenType
 {
     END_OF_STATEMENT,
@@ -9,6 +22,8 @@ enum TokenType
     OPERATOR_MULITPLY,
     OPERATOR_DIVIDE,
     OPERATOR_MODULO,
+    L_PARENTHESIS,
+    R_PARENTHESIS,
     SYMBOLIC_NAME,
 };
 
@@ -28,6 +43,6 @@ struct Token
 
     void printToken()
     {
-        std::cout << "TOKEN { TYPE: " << this->type << " ; BODY: " << this->body << " ; LINE : " << this->line_number << " }" << std::endl;
+        std::cout << "TOKEN { TYPE: " << TokenTypeName[this->type] << " ; BODY: " << this->body << " ; LINE : " << this->line_number << " }" << std::endl;
     }
 };

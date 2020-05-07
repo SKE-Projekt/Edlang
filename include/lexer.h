@@ -15,6 +15,7 @@ private:
     bool debug;
 
     std::string parseNumericValue();
+    std::string parseSymbolicName();
 
     void pushToken(TokenType type_v, std::string body_v)
     {
