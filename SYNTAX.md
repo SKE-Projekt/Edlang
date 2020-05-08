@@ -12,7 +12,7 @@ Else
     Print('Pętla się zakończyła')
 EndFor
 
-Function sampleFunction : Int : {Int arg1, Float arg2}
+Function sampleFunction (Int arg1, Float arg2) : Int
     Print(arg1);
     Print(arg2);
     # W celu wypisania wielu, trzeba skorzystać z formatu

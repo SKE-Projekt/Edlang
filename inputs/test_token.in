@@ -1,17 +1,7 @@
-If (123)
-    Int lol = 12;
-    Int lol2 = (12 + 2);
-ElseIf (23 / 23)
-    Int xd = 12;
-Else
-    Int lol = 1;
-EndIf
-
-
-Int var = If (12)
-    12 / 2;
-ElseIf (23 / 12)
-    11;
-Else
-    5 + (2 / 2);
-EndIf
+Function simpleIfThen2(Int arg1) : Int
+    If (arg1)
+        2;
+    Else
+        arg1;
+    EndIf
+EndFunction

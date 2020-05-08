@@ -9,6 +9,8 @@ const std::string TokenTypeName[] = {
     "ASSIGNMENT",
     "L_PARENTHESIS",
     "R_PARENTHESIS",
+    "NEXT_OPERATOR",
+    "TYPE_OPERATOR",
     "SYMBOLIC_NAME",
 };
 
@@ -21,6 +23,8 @@ enum TokenType
     ASSIGNMENT,
     L_PARENTHESIS,
     R_PARENTHESIS,
+    NEXT_OPERATOR,
+    TYPE_OPERATOR,
     SYMBOLIC_NAME,
 };
 
@@ -41,5 +45,10 @@ struct Token
     void printToken()
     {
         std::cout << "TOKEN { TYPE: " << TokenTypeName[this->type] << " ; BODY: " << this->body << " ; LINE : " << this->line_number << " }" << std::endl;
+    }
+
+    bool isSymbolicValue(std::string value)
+    {
+        return this->type == TokenType::SYMBOLIC_NAME && this->body == value;
     }
 };

@@ -14,6 +14,14 @@ const std::string ExpressionTypeName[] = {
     "IF_EXPR",
     "IF_BLOCK_EXPR",
     "ENDIF_EXPR",
+    "TYPE",
+    "ARG_DECLARED",
+    "ARG_PROVIDED",
+    "ARG_BLOCK_DECLARED",
+    "ARG_BLOCK_PROVIDED",
+    "FUNCTION_BODY",
+    "FUNCTION_DECLARATION",
+    "FUNCTION_CALL",
 };
 
 enum ExpressionType
@@ -28,6 +36,14 @@ enum ExpressionType
     IF_EXPR,
     IF_BLOCK_EXPR,
     ENDIF_EXPR,
+    TYPE,
+    ARG_DECLARED,
+    ARG_PROVIDED,
+    ARG_BLOCK_DECLARED,
+    ARG_BLOCK_PROVIDED,
+    FUNCTION_BODY,
+    FUNCTION_DECLARATION,
+    FUNCTION_CALL,
 };
 
 class Expression

@@ -20,6 +20,9 @@ private:
     Expression getParenthesisedExpression();
     Expression parseSymbolicToken(Token first_token);
 
+    Expression getArgsDeclaration();
+    Expression getFunctionBody();
+
     Token nextToken()
     {
         if (!this->tokens.empty())

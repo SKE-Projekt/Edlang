@@ -6,191 +6,16 @@ std::map<std::string, Types> TYPE_NAMES = {
     {"String", Types::STRING_TYPE},
 };
 
-Expression Parser::getIfExpression(bool is_else)
-{
-    std::vector<Token> if_tokens;
-    auto expr = Expression(ExpressionType::IF_EXPR, this->last_token.line_number);
-
-    // FIX
-    // check if token is (
-    Expression cond = Expression(ExpressionType::EMPTY, this->last_token.line_number, "ELSE");
-    if (is_else == false)
-    {
-        this->tokens.pop_back();
-        cond = this->getParenthesisedExpression();
-        if (!cond.returnsValue())
-        {
-            throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, this->last_token.line_number);
-        }
-    }
-
-    auto next_token = this->nextToken();
-    while (next_token.body != "EndIf" && (next_token.body != "ElseIf" && next_token.body != "Else"))
-    {
-        if_tokens.push_back(next_token);
-        next_token = this->nextToken();
-    }
-
-    if (next_token.body == "ElseIf" || next_token.body == "Else")
-    {
-        if (is_else && next_token.body == "Else")
-        {
-            throw Exception("Więcej niż jeden Else w bloku warunkowym", BAD_IF_EXPR, next_token.line_number);
-        }
-        this->tokens.push_back(next_token);
-    }
-    else
-    {
-        this->tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", next_token.line_number));
-    }
-
-    Parser if_parser(if_tokens);
-    if_parser.parse();
-
-    expr.addChild(cond);
-    for (auto e : if_parser.getExprs())
-        expr.addChild(e);
-    return expr;
-}
-
-Expression Parser::getIfBlock()
-{
-    auto expr = Expression(ExpressionType::IF_BLOCK_EXPR, this->last_token.line_number);
-    bool last_is_else = false;
-
-    do
-    {
-        bool is_else = false;
-
-        if (this->tokens.back().body == "If" || this->tokens.back().body == "ElseIf" || this->tokens.back().body == "Else")
-        {
-            if (this->tokens.back().body == "Else")
-                is_else = true;
-            this->tokens.pop_back();
-        }
-        else
-            break;
-
-        if (last_is_else)
-        {
-            throw Exception("Else musi znajdować się na końcu bloku warunkowego", BAD_IF_EXPR, this->last_token.line_number);
-        }
-
-        last_is_else = is_else;
-        expr.addChild(this->getIfExpression(is_else));
-    } while (!this->tokens.empty());
-
-    return expr;
-}
-
-Expression Parser::parseSymbolicToken(Token first_token)
-{
-    if (first_token.body == "Int" || first_token.body == "Float" || first_token.body == "String")
-    {
-        auto name_token = this->nextToken();
-        auto next_token = this->nextToken();
-
-        if (name_token.type != TokenType::SYMBOLIC_NAME)
-        {
-            throw Exception("Niepoprawna nazwa w deklaracji zmiennej", BAD_VARIABLE_DECLARATION, name_token.line_number);
-        }
-        else if (TYPE_NAMES.count(name_token.body))
-        {
-            throw Exception("Używanie słów kluczowych jako nazw zmiennych jest niedozowolone", BAD_VARIABLE_DECLARATION, name_token.line_number);
-        }
-
-        auto expr = Expression(ExpressionType::DECLARATION, first_token.line_number, first_token.body);
-        expr.addChild(Expression(ExpressionType::SYMBOLIC_VALUE, name_token.line_number, name_token.body));
-
-        if (next_token.type == TokenType::END_OF_STATEMENT)
-        {
-            this->tokens.push_back(next_token);
-            return expr;
-        }
-        else if (next_token.type == TokenType::ASSIGNMENT)
-        {
-            auto assign_expr = Expression(ExpressionType::EXPR_ASSIGNMENT, next_token.line_number);
-            auto assign_val = this->getNextExpression(assign_expr);
-
-            if (!assign_val.returnsValue())
-            {
-                throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, next_token.line_number);
-            }
-
-            assign_expr.addChild(assign_val);
-            expr.addChild(assign_expr);
-        }
-        else
-        {
-            throw Exception("Niespodziewany token " + next_token.body, UNEXPECTED_TOKEN_IN_EXPR, next_token.line_number);
-        }
-
-        return expr;
-    }
-    else if (first_token.body == "If")
-    {
-        this->tokens.push_back(first_token);
-        return this->getIfBlock();
-    }
-    else
-    {
-        auto next_token = this->nextToken();
-        if (next_token.type == TokenType::ASSIGNMENT)
-        {
-            auto expr = Expression(ExpressionType::EXPR_ASSIGNMENT, next_token.line_number);
-            expr.addChild(Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body));
-            auto assign_val = this->getNextExpression(expr);
-
-            if (!assign_val.returnsValue())
-            {
-                throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, next_token.line_number);
-            }
-
-            expr.addChild(assign_val);
-            return expr;
-        }
-    }
-
-    throw Exception("Nieobsługiwana wartość symboliczna " + first_token.body, UNEXPECTED_SYMBOLIC_NAME, first_token.line_number);
-}
-
-Expression Parser::getParenthesisedExpression()
-{
-    int parenthesis_depth = 1;
-    std::vector<Token> parenthesised_tokens;
-    while (!this->tokens.empty())
-    {
-        auto token = this->tokens.back();
-        this->tokens.pop_back();
-        if (token.type == TokenType::R_PARENTHESIS && (--parenthesis_depth == 0))
-        {
-            parenthesised_tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", token.line_number));
-            Parser parentheisis_parser(parenthesised_tokens);
-            parentheisis_parser.parse();
-
-            if (parentheisis_parser.expressions.empty())
-            {
-                throw Exception("Wyrażenie nawiasowe jest puste", BAD_PARENTHESIS_EXPR, this->last_token.line_number);
-            }
-            return parentheisis_parser.expressions.back();
-        }
-        else if (token.type == TokenType::L_PARENTHESIS)
-        {
-            ++parenthesis_depth;
-            parenthesised_tokens.push_back(token);
-        }
-        else if (token.type == TokenType::END_OF_STATEMENT)
-        {
-            throw Exception("Nie znaleziono zamknięcia nawiasu", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
-        }
-        else
-        {
-            parenthesised_tokens.push_back(token);
-        }
-    }
-
-    throw Exception("Wyrażenie nawiasowe jest niepoprawne", BAD_PARENTHESIS_EXPR, this->last_token.line_number);
-}
+std::set<std::string> KEYWORDS = {
+    "Int",
+    "Float",
+    "String",
+    "If",
+    "ElseIf",
+    "Else",
+    "EndIf"
+    "Function",
+    "EndFunction"};
 
 Expression Parser::getNextExpression(Expression prev, bool priority)
 {
@@ -258,7 +83,7 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
                 std::cout << "PREV: " << std::endl;
                 token.printToken();
             }
-            throw Exception("LOL" + token.body, UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
+            throw Exception("Niespodziewany wartość tekstowa", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
         }
     }
     else if (token.type == TokenType::MATH_OPERATOR)
@@ -307,6 +132,19 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
         {
             return expr;
         }
+        else if (expr.getType() == ExpressionType::FUNCTION_DECLARATION)
+        {
+            if (prev.getType() != ExpressionType::EMPTY)
+            {
+                throw Exception("Deklaracja nie może być cześcią innego wyrażenia", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
+            }
+
+            return expr;
+        }
+        else if (expr.getType() == ExpressionType::SYMBOLIC_VALUE)
+        {
+            return expr;
+        }
     }
     throw Exception("Nieobsługiwane wyrażenie " + token.body, UNHANDLED_EXPRESSION, token.line_number);
 }
@@ -323,4 +161,304 @@ void Parser::parse()
             expr.printExpression();
         }
     }
+}
+
+Expression Parser::parseSymbolicToken(Token first_token)
+{
+    if (first_token.isSymbolicValue("Int") || first_token.isSymbolicValue("Float") || first_token.isSymbolicValue("String"))
+    {
+        auto name_token = this->nextToken();
+        auto next_token = this->nextToken();
+
+        if (name_token.type != TokenType::SYMBOLIC_NAME)
+        {
+            throw Exception("Niepoprawna nazwa w deklaracji zmiennej", BAD_VARIABLE_DECLARATION, name_token.line_number);
+        }
+        else if (TYPE_NAMES.count(name_token.body))
+        {
+            throw Exception("Używanie słów kluczowych jako nazw zmiennych jest niedozowolone", BAD_VARIABLE_DECLARATION, name_token.line_number);
+        }
+
+        auto expr = Expression(ExpressionType::DECLARATION, first_token.line_number);
+        expr.addChild(Expression(ExpressionType::TYPE, first_token.line_number, first_token.body));
+        expr.addChild(Expression(ExpressionType::SYMBOLIC_VALUE, name_token.line_number, name_token.body));
+
+        if (next_token.type == TokenType::END_OF_STATEMENT)
+        {
+            this->tokens.push_back(next_token);
+            return expr;
+        }
+        else if (next_token.type == TokenType::ASSIGNMENT)
+        {
+            auto assign_expr = Expression(ExpressionType::EXPR_ASSIGNMENT, next_token.line_number);
+            auto assign_val = this->getNextExpression(assign_expr);
+
+            if (!assign_val.returnsValue())
+            {
+                throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, next_token.line_number);
+            }
+
+            assign_expr.addChild(assign_val);
+            expr.addChild(assign_expr);
+        }
+        else
+        {
+            throw Exception("Niespodziewany token " + next_token.body, UNEXPECTED_TOKEN_IN_EXPR, next_token.line_number);
+        }
+
+        return expr;
+    }
+    else if (first_token.isSymbolicValue("Function"))
+    {
+        auto name_token = this->nextToken();
+        if (name_token.type != TokenType::SYMBOLIC_NAME || KEYWORDS.find(name_token.body) != KEYWORDS.end())
+        {
+            throw Exception("Niepoprawna nazwa funkcji " + name_token.body, BAD_FUNCTION_DECLARATION, name_token.line_number);
+        }
+        auto name_expr = Expression(ExpressionType::SYMBOLIC_VALUE, name_token.line_number, name_token.body);
+
+        auto args_expr = this->getArgsDeclaration();
+
+        auto type_op_token = this->nextToken();
+        auto type_token = this->nextToken();
+        if (type_op_token.type != TokenType::TYPE_OPERATOR || type_token.type != TokenType::SYMBOLIC_NAME || !TYPE_NAMES.count(type_token.body))
+        {
+            throw Exception("Niepoprawny typ zwrotny funkcji", BAD_FUNCTION_DECLARATION, type_token.line_number);
+        }
+        auto type_expr = Expression(ExpressionType::TYPE, type_token.line_number, type_token.body);
+
+        auto body_expr = this->getFunctionBody();
+
+        auto expr = Expression(ExpressionType::FUNCTION_DECLARATION, first_token.line_number);
+        expr.addChild(type_expr);
+        expr.addChild(name_expr);
+        expr.addChild(args_expr);
+        expr.addChild(body_expr);
+
+        return expr;
+    }
+    else if (first_token.isSymbolicValue("If"))
+    {
+        this->tokens.push_back(first_token);
+        return this->getIfBlock();
+    }
+    else
+    {
+        auto next_token = this->nextToken();
+        if (next_token.type == TokenType::ASSIGNMENT)
+        {
+            auto expr = Expression(ExpressionType::EXPR_ASSIGNMENT, next_token.line_number);
+            expr.addChild(Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body));
+            auto assign_val = this->getNextExpression(expr);
+
+            if (!assign_val.returnsValue())
+            {
+                throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, next_token.line_number);
+            }
+
+            expr.addChild(assign_val);
+            return expr;
+        }
+        else
+        {
+            auto expr = Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body);
+            return expr;
+        }
+    }
+
+    throw Exception("Nieobsługiwana wartość symboliczna " + first_token.body, UNEXPECTED_SYMBOLIC_NAME, first_token.line_number);
+}
+
+//////////////// FUNCTION DECLARATIONS
+
+Expression Parser::getFunctionBody()
+{
+    std::vector<Token> function_tokens;
+    auto token = this->nextToken();
+    int line_number = token.line_number;
+    while (!token.isSymbolicValue("EndFunction"))
+    {
+        function_tokens.push_back(token);
+        token = this->nextToken();
+    }
+
+    Parser function_parser(function_tokens);
+    function_parser.parse();
+
+    auto expr = Expression(ExpressionType::FUNCTION_BODY, line_number);
+    for (auto c : function_parser.getExprs())
+        expr.addChild(c);
+    return expr;
+}
+
+Expression Parser::getArgsDeclaration()
+{
+    auto expr = Expression(ExpressionType::ARG_BLOCK_DECLARED, this->last_token.line_number);
+
+    if (this->nextToken().type != TokenType::L_PARENTHESIS)
+    {
+        throw Exception("Definicja funkcji wymaga podania argumentów", BAD_FUNCTION_DECLARATION, this->last_token.line_number);
+    }
+
+    bool should_get_next = false;
+    while (true)
+    {
+        auto type_token = this->nextToken();
+        if (type_token.type == TokenType::R_PARENTHESIS)
+        {
+            if (should_get_next)
+            {
+                throw Exception("Nie znalezion kolejnego argumentu", BAD_FUNCTION_DECLARATION, type_token.line_number);
+            }
+            break;
+        }
+        auto name_token = this->nextToken();
+        if (type_token.type != TokenType::SYMBOLIC_NAME || !TYPE_NAMES.count(type_token.body))
+        {
+            throw Exception("Niepoprawny typ argumentu", BAD_FUNCTION_DECLARATION, type_token.line_number);
+        }
+        if (name_token.type != TokenType::SYMBOLIC_NAME || KEYWORDS.find(name_token.body) != KEYWORDS.end())
+        {
+            throw Exception("Niepoprawna nazwa argumentu " + name_token.body, BAD_FUNCTION_DECLARATION, name_token.line_number);
+        }
+
+        if (this->tokens.empty())
+            this->nextToken();
+        if (this->tokens.back().type == TokenType::NEXT_OPERATOR)
+        {
+            this->nextToken();
+            should_get_next = true;
+        }
+        else
+        {
+            should_get_next = false;
+        }
+
+        auto arg_expr = Expression(ExpressionType::ARG_DECLARED, this->last_token.line_number);
+        arg_expr.addChild(Expression(ExpressionType::TYPE, type_token.line_number, type_token.body));
+        arg_expr.addChild(Expression(ExpressionType::SYMBOLIC_VALUE, name_token.line_number, name_token.body));
+
+        expr.addChild(arg_expr);
+    }
+
+    return expr;
+}
+
+//////////////// PARENTHESIS
+
+Expression Parser::getParenthesisedExpression()
+{
+    int parenthesis_depth = 1;
+    std::vector<Token> parenthesised_tokens;
+    while (!this->tokens.empty())
+    {
+        auto token = this->tokens.back();
+        this->tokens.pop_back();
+        if (token.type == TokenType::R_PARENTHESIS && (--parenthesis_depth == 0))
+        {
+            parenthesised_tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", token.line_number));
+            Parser parentheisis_parser(parenthesised_tokens);
+            parentheisis_parser.parse();
+
+            if (parentheisis_parser.expressions.empty())
+            {
+                throw Exception("Wyrażenie nawiasowe jest puste", BAD_PARENTHESIS_EXPR, this->last_token.line_number);
+            }
+            return parentheisis_parser.expressions.back();
+        }
+        else if (token.type == TokenType::L_PARENTHESIS)
+        {
+            ++parenthesis_depth;
+            parenthesised_tokens.push_back(token);
+        }
+        else if (token.type == TokenType::END_OF_STATEMENT)
+        {
+            throw Exception("Nie znaleziono zamknięcia nawiasu", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
+        }
+        else
+        {
+            parenthesised_tokens.push_back(token);
+        }
+    }
+
+    throw Exception("Wyrażenie nawiasowe jest niepoprawne", BAD_PARENTHESIS_EXPR, this->last_token.line_number);
+}
+
+////////////////////////// IF EXPRESSIONS
+
+Expression Parser::getIfBlock()
+{
+    auto expr = Expression(ExpressionType::IF_BLOCK_EXPR, this->last_token.line_number);
+    bool last_is_else = false;
+
+    do
+    {
+        bool is_else = false;
+
+        if (this->tokens.back().isSymbolicValue("If") || this->tokens.back().isSymbolicValue("ElseIf") || this->tokens.back().isSymbolicValue("Else"))
+        {
+            if (this->tokens.back().isSymbolicValue("Else"))
+                is_else = true;
+            this->tokens.pop_back();
+        }
+        else
+            break;
+
+        if (last_is_else)
+        {
+            throw Exception("Else musi znajdować się na końcu bloku warunkowego", BAD_IF_EXPR, this->last_token.line_number);
+        }
+
+        last_is_else = is_else;
+        expr.addChild(this->getIfExpression(is_else));
+    } while (!this->tokens.empty());
+
+    return expr;
+}
+
+Expression Parser::getIfExpression(bool is_else)
+{
+    std::vector<Token> if_tokens;
+    auto expr = Expression(ExpressionType::IF_EXPR, this->last_token.line_number);
+
+    // FIX
+    // check if token is (
+    Expression cond = Expression(ExpressionType::EMPTY, this->last_token.line_number, "ELSE");
+    if (is_else == false)
+    {
+        this->tokens.pop_back();
+        cond = this->getParenthesisedExpression();
+        if (!cond.returnsValue())
+        {
+            throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, this->last_token.line_number);
+        }
+    }
+
+    auto next_token = this->nextToken();
+    while (!next_token.isSymbolicValue("EndIf") && !next_token.isSymbolicValue("ElseIf") && !next_token.isSymbolicValue("Else"))
+    {
+        if_tokens.push_back(next_token);
+        next_token = this->nextToken();
+    }
+
+    if (next_token.isSymbolicValue("ElseIf") || next_token.isSymbolicValue("Else"))
+    {
+        if (is_else && next_token.body == "Else")
+        {
+            throw Exception("Więcej niż jeden Else w bloku warunkowym", BAD_IF_EXPR, next_token.line_number);
+        }
+        this->tokens.push_back(next_token);
+    }
+    else
+    {
+        this->tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", next_token.line_number));
+    }
+
+    Parser if_parser(if_tokens);
+    if_parser.parse();
+
+    expr.addChild(cond);
+    for (auto e : if_parser.getExprs())
+        expr.addChild(e);
+    return expr;
 }

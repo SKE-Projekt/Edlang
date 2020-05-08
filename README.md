@@ -7,6 +7,7 @@ Język edukacyjny będący częścią projektu SKE
 * Make string literals [X]
 * Variable definition and assignment [X]
 * If/ElseIf/Else/EndIf block [x]
-* Simple console I/O []
+* Functions
 * Evaluating current expressions []
 * Global and scope symbol table []
+* Simple console I/O []

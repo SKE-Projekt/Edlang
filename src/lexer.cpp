@@ -121,6 +121,16 @@ void Lexer::lex()
             this->pushToken(TokenType::ASSIGNMENT, "=");
             this->c_sc_pos++;
         }
+        else if (curr_c == ",")
+        {
+            this->pushToken(TokenType::NEXT_OPERATOR, ",");
+            this->c_sc_pos++;
+        }
+        else if (curr_c == ":")
+        {
+            this->pushToken(TokenType::TYPE_OPERATOR, ":");
+            this->c_sc_pos++;
+        }
         else if (curr_c == "\"" || curr_c == "\'")
         {
             auto string_val = this->parseStringValue(curr_c);
