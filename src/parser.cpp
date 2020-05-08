@@ -44,6 +44,18 @@ Expression Parser::parseSymbolicToken(Token first_token)
 
         return expr;
     }
+    else
+    {
+        auto next_token = this->nextToken();
+        if (next_token.type == TokenType::ASSIGNMENT)
+        {
+            auto expr = Expression(ExpressionType::EXPR_ASSIGNMENT, next_token.line_number);
+            expr.addChild(Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body));
+            auto assign_val = this->getNextExpression(expr);
+            expr.addChild(assign_val);
+            return expr;
+        }
+    }
 
     throw Exception("Nieobsługiwana wartość symboliczna " + first_token.body, UNEXPECTED_SYMBOLIC_NAME, first_token.line_number);
 }
@@ -110,12 +122,12 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
     this->tokens.pop_back();
     if (token.type == TokenType::NUMERIC_VALUE)
     {
-        if (prev.getType() == ExpressionType::EMPTY)
+        if (prev.getType() == ExpressionType::EMPTY || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
         {
             auto expr = Expression(ExpressionType::NUMERIC_LITERAL, token.line_number, token.body);
             return this->getNextExpression(expr);
         }
-        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
+        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR)
         {
             auto expr = Expression(ExpressionType::NUMERIC_LITERAL, token.line_number, token.body);
             return expr;
@@ -133,12 +145,12 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
     }
     else if (token.type == TokenType::STRING_VALUE)
     {
-        if (prev.getType() == ExpressionType::EMPTY)
+        if (prev.getType() == ExpressionType::EMPTY || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
         {
             auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
             return this->getNextExpression(expr);
         }
-        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
+        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR)
         {
             auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
             return expr;
@@ -184,6 +196,10 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
                 throw Exception("Deklaracja nie może być cześcią innego wyrażenia", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
             }
 
+            return expr;
+        }
+        else if (expr.getType() == ExpressionType::EXPR_ASSIGNMENT)
+        {
             return expr;
         }
     }
