@@ -15,6 +15,8 @@ private:
 
     bool debug;
 
+    Expression getIfBlock();
+    Expression getIfExpression(bool is_else);
     Expression getParenthesisedExpression();
     Expression parseSymbolicToken(Token first_token);
 
@@ -24,6 +26,8 @@ private:
         {
             auto token = this->tokens.back();
             this->tokens.pop_back();
+
+            this->last_token = token;
             return token;
         }
 
@@ -31,12 +35,13 @@ private:
     }
 
 public:
-    Parser(std::vector<Token> tokens_v, bool debug_v = false) : last_token(TokenType::END_OF_STATEMENT, "", 1)
+    Parser(std::vector<Token> tokens_v, bool debug_v = false, bool reverse = true) : last_token(TokenType::END_OF_STATEMENT, "", 1)
     {
         this->tokens = tokens_v;
         this->debug = debug_v;
 
-        std::reverse(this->tokens.begin(), this->tokens.end());
+        if (reverse)
+            std::reverse(this->tokens.begin(), this->tokens.end());
     }
 
     Expression getNextExpression(Expression prev = Expression(ExpressionType::EMPTY, 0), bool priority = false);
@@ -46,5 +51,10 @@ public:
     {
         for (auto t : this->tokens)
             t.printToken();
+    }
+
+    std::vector<Expression> getExprs()
+    {
+        return this->expressions;
     }
 };

@@ -11,6 +11,9 @@ const std::string ExpressionTypeName[] = {
     "DECLARATION",
     "ASSIGNMENT",
     "SYMBOLIC_VALUE",
+    "IF_EXPR",
+    "IF_BLOCK_EXPR",
+    "ENDIF_EXPR",
 };
 
 enum ExpressionType
@@ -22,6 +25,9 @@ enum ExpressionType
     DECLARATION,
     EXPR_ASSIGNMENT,
     SYMBOLIC_VALUE,
+    IF_EXPR,
+    IF_BLOCK_EXPR,
+    ENDIF_EXPR,
 };
 
 class Expression
@@ -52,6 +58,27 @@ public:
     }
 
     void printExpression(int depth = 0);
+
+    bool returnsValue()
+    {
+        switch (this->type)
+        {
+        case ExpressionType::NUMERIC_LITERAL:
+        case ExpressionType::STRING_LITERAL:
+        case ExpressionType::SYMBOLIC_VALUE:
+        case ExpressionType::EXPR_MATH_OPERATOR:
+        case ExpressionType::EXPR_ASSIGNMENT:
+            return true;
+            break;
+        default:
+            return false;
+        }
+    }
+
+    int childCount()
+    {
+        return this->children.size();
+    }
 };
 
 class OperatorExpression : Expression

@@ -1,5 +1,17 @@
-(Int var);
-Int var2 = (123 + 11 / (2) - .32) + 12;
+If (123)
+    Int lol = 12;
+    Int lol2 = (12 + 2);
+ElseIf (23 / 23)
+    Int xd = 12;
+Else
+    Int lol = 1;
+EndIf
 
-var2 = 123 + 12;
-var3 = 12;
+
+Int var = If (12)
+    12 / 2;
+ElseIf (23 / 12)
+    11;
+Else
+    5 + (2 / 2);
+EndIf
