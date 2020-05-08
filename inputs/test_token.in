@@ -1,6 +1,7 @@
-3. + 3.23;
-.12 - .22;
-3 * 2.213;
-7. / 2;
+Int really;
+really = 12;
 
-8 % 3;
+String werid = "LKO";
+werid = "L";
+
+Int new = really;

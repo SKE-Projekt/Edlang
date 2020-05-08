@@ -14,6 +14,7 @@ void Eval::eval()
         if (this->debug)
         {
             result.printVariable();
+            this->getScope().printScope();
         }
     }
 }
@@ -32,12 +33,61 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     case ExpressionType::STRING_LITERAL:
         return this->evalLiteralExpression(expr);
         break;
+    case ExpressionType::SYMBOLIC_VALUE:
+        return this->getScope().getVariable(expr.getValue(), expr.getLineNumber());
     case ExpressionType::EXPR_MATH_OPERATOR:
         return this->evalMathOperatorExpression(expr);
+        break;
+    case ExpressionType::DECLARATION:
+        return this->evalVariableDeclaration(expr);
+        break;
+    case ExpressionType::EXPR_ASSIGNMENT:
+        return this->evalVariableAssignment(expr);
         break;
     default:
         throw Exception("Nieobsługiwane wyrażenie", UNHANDLED_EXPRESSION, expr.getLineNumber());
     }
+}
+
+Variable Eval::evalVariableDeclaration(Expression expr)
+{
+    auto type_expr = expr.getChild(0);
+    auto symbol_expr = expr.getChild(1);
+
+    VariableType type = VariableType::INTEGER_TYPE;
+    if (type_expr.getValue() == "Float")
+        type = VariableType::FLOAT_TYPE;
+    else if (type_expr.getValue() == "String")
+        type = VariableType::STRING_TYPE;
+
+    Variable var = Variable(type, expr.getLineNumber(), false);
+
+    auto &scope = this->getScope();
+    scope.declareVariable(symbol_expr.getValue(), var);
+
+    if (expr.childCount() == 3)
+    {
+        auto assign_val = expr.getChild(2).getChild(0);
+        auto assign_expr = Expression(ExpressionType::EXPR_ASSIGNMENT, assign_val.getLineNumber());
+        assign_expr.addChild(symbol_expr);
+        assign_expr.addChild(assign_val);
+        std::cout << "TEST:" << std::endl;
+        assign_expr.printExpression();
+        return this->evalExpr(assign_expr);
+    }
+
+    return var;
+}
+
+Variable Eval::evalVariableAssignment(Expression expr)
+{
+    auto l_val_expr = expr.getChild(0);
+    auto r_val_expr = expr.getChild(1);
+
+    auto r_val = this->evalExpr(r_val_expr);
+    this->getScope().assignVariable(l_val_expr.getValue(), r_val);
+
+    return r_val;
 }
 
 Variable Eval::evalMathOperatorExpression(Expression expr)
@@ -56,7 +106,7 @@ Variable Eval::evalMathOperatorExpression(Expression expr)
         return l_val * r_val;
     else if (expr.getValue() == "/")
         return l_val / r_val;
-    else if (expr.getValue() == "%")
+    else
         return l_val % r_val;
 }
 

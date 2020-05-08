@@ -1,3 +1,4 @@
+#pragma once
 #include "special/std_libraries.h"
 #include "special/return_codes.h"
 #include "expression.h"
@@ -54,6 +55,11 @@ private:
 
 public:
     VariableType type;
+
+    Variable()
+    {
+    }
+
     Variable(VariableType type_v, int line_number_v, bool defined_val_v = true, int int_val_v = -1, float float_val_v = -1, std::string string_val_v = "UNDEFINED")
     {
         this->line_number = line_number_v;
@@ -92,13 +98,20 @@ public:
         return this->string_val;
     }
 
+    int getLineNumber()
+    {
+        return this->line_number;
+    }
+
+    // TODO
+    // Move this to variable.cpp
     void printVariable()
     {
-        std::cout << "ZMIENNA: " << std::endl;
+        std::cout << "VARIABLE: " << std::endl;
         std::cout << "{" << std::endl;
-        std::cout << "\tTYP: " << VariableTypeName[this->type] << std::endl;
-        std::cout << "\tZDEFINIOWANA: " << this->defined_val << std::endl;
-        std::cout << "\tWARTOSC: ";
+        std::cout << "\tTYPE: " << VariableTypeName[this->type] << std::endl;
+        std::cout << "\tDEFINED: " << this->defined_val << std::endl;
+        std::cout << "\tVALUE: ";
         switch (this->type)
         {
         case VariableType::INTEGER_TYPE:
@@ -261,5 +274,34 @@ public:
         }
 
         return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val % diff.int_val);
+    }
+
+    Variable assign(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation("=", diff);
+        }
+
+        this->defined_val = true;
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            this->int_val = diff.int_val;
+            break;
+        case VariableType::FLOAT_TYPE:
+            this->float_val = diff.float_val;
+            break;
+        case VariableType::STRING_TYPE:
+            this->string_val = diff.string_val;
+            break;
+        }
+
+        return *this;
+    }
+
+    void undefy()
+    {
+        this->defined_val = false;
     }
 };

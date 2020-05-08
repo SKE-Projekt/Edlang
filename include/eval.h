@@ -4,10 +4,13 @@
 #include "expression.h"
 #include "exception.h"
 #include "variable.h"
+#include "scope.h"
 
 class Eval
 {
 private:
+    std::vector<Scope> scopes;
+
     int line_number;
     std::vector<Expression> expressions;
 
@@ -28,6 +31,8 @@ private:
 
     Variable evalLiteralExpression(Expression expr);
     Variable evalMathOperatorExpression(Expression expr);
+    Variable evalVariableDeclaration(Expression expr);
+    Variable evalVariableAssignment(Expression expr);
 
 public:
     Eval(std::vector<Expression> expressions_v, bool debug_v = false)
@@ -38,8 +43,15 @@ public:
         std::reverse(this->expressions.begin(), this->expressions.end());
 
         this->debug = debug_v;
+        this->scopes.push_back(Scope());
     }
 
-    void eval();
+    Scope &getScope()
+    {
+        return scopes[this->scopes.size() - 1];
+    }
+
+    void
+    eval();
     Variable evalExpr(Expression expr, bool scoped = false);
 };
