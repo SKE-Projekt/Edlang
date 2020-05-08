@@ -33,4 +33,5 @@ public:
     }
 
     void lex();
+    std::vector<Token> getTokens() { return this->tokens; }
 };

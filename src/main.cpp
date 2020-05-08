@@ -1,5 +1,6 @@
 #include "../include/special/std_libraries.h"
 #include "../include/exception.h"
+#include "../include/parser.h"
 #include "../include/lexer.h"
 
 std::string readSourceCode(std::string source_code_file)
@@ -41,6 +42,9 @@ int main(int argc, char *argv[])
 
 		Lexer lexer(source_code, debug);
 		lexer.lex();
+
+		Parser parser(lexer.getTokens(), debug);
+		parser.parse();
 	}
 	catch (Exception e)
 	{

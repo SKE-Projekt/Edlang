@@ -79,37 +79,17 @@ void Lexer::lex()
         }
         else if (curr_c == "(")
         {
-            this->pushToken(TokenType::L_PARENTHESIS, "");
+            this->pushToken(TokenType::L_PARENTHESIS, "(");
             this->c_sc_pos++;
         }
         else if (curr_c == ")")
         {
-            this->pushToken(TokenType::R_PARENTHESIS, "");
+            this->pushToken(TokenType::R_PARENTHESIS, ")");
             this->c_sc_pos++;
         }
         else if (operators.find(curr_c) != operators.npos)
         {
-            switch (curr_c[0])
-            {
-            case '+':
-                this->pushToken(TokenType::OPERATOR_PLUS, "");
-                break;
-            case '-':
-                this->pushToken(TokenType::OPERATOR_MINUS, "");
-                break;
-            case '*':
-                this->pushToken(TokenType::OPERATOR_MULITPLY, "");
-                break;
-            case '/':
-                this->pushToken(TokenType::OPERATOR_DIVIDE, "");
-                break;
-            case '%':
-                this->pushToken(TokenType::OPERATOR_MODULO, "");
-                break;
-            default:
-                throw Exception("Nieobsługiwany operator " + curr_c, UNHANDLED_OPERATOR, this->line_number);
-            }
-
+            this->pushToken(TokenType::MATH_OPERATOR, curr_c);
             this->c_sc_pos++;
         }
         else if (std::regex_match(curr_c, number_regex))
