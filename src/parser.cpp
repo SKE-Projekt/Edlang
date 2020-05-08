@@ -1,9 +1,9 @@
 #include "../include/parser.h"
 
-std::map<std::string, Types> TYPE_NAMES = {
-    {"Int", Types::INTEGER_TYPE},
-    {"Float", Types::FLOATING_TYPE},
-    {"String", Types::STRING_TYPE},
+std::map<std::string, bool> TYPE_NAMES = {
+    {"Int", 1},
+    {"Float", 1},
+    {"String", 1},
 };
 
 std::set<std::string> KEYWORDS = {

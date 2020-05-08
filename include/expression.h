@@ -95,6 +95,25 @@ public:
     {
         return this->children.size();
     }
+
+    int getLineNumber()
+    {
+        return this->line_number;
+    }
+
+    std::string getValue()
+    {
+        return this->value;
+    };
+
+    Expression getChild(int idx)
+    {
+        if (this->children.size() <= idx)
+        {
+            throw Exception("Niewłaściwa budowa wyrażenia", INCORRECT_EXPRESSION_STRUCTURE, this->line_number);
+        }
+        return this->children[idx];
+    }
 };
 
 class OperatorExpression : Expression

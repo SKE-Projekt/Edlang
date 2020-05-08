@@ -1,7 +1,1 @@
-Function simpleIfThen2(Int arg1) : Int
-    If (arg1)
-        2;
-    Else
-        arg1;
-    EndIf
-EndFunction
+12 + 3.23;
