@@ -1,10 +1,4 @@
-123 + 23;
+(Int var);
+Int var2 = (123 + 11 / (2) - .32) + 12;
 
-123 + (.23 / 2 + (22 - 1));
-
-
-'string
-litera';
-
-"dokladnie
-    Abyczq'";
+Int var3 = Int var2;

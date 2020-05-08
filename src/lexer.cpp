@@ -116,6 +116,17 @@ void Lexer::lex()
             this->pushToken(TokenType::R_PARENTHESIS, ")");
             this->c_sc_pos++;
         }
+        else if (curr_c == "=")
+        {
+            this->pushToken(TokenType::ASSIGNMENT, "=");
+            this->c_sc_pos++;
+        }
+        else if (curr_c == "\"" || curr_c == "\'")
+        {
+            auto string_val = this->parseStringValue(curr_c);
+            this->pushToken(TokenType::STRING_VALUE, string_val.second);
+            this->line_number += string_val.first;
+        }
         else if (operators.find(curr_c) != operators.npos)
         {
             this->pushToken(TokenType::MATH_OPERATOR, curr_c);
@@ -128,12 +139,6 @@ void Lexer::lex()
         else if (std::regex_match(curr_c, symbol_regex))
         {
             this->pushToken(TokenType::SYMBOLIC_NAME, this->parseSymbolicName());
-        }
-        else if (curr_c == "\"" || curr_c == "\'")
-        {
-            auto string_val = this->parseStringValue(curr_c);
-            this->pushToken(TokenType::STRING_VALUE, string_val.second);
-            this->line_number += string_val.first;
         }
         else
         {

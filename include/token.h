@@ -6,9 +6,11 @@ const std::string TokenTypeName[] = {
     "NUMERIC_VALUE",
     "STRING_VALUE",
     "MATH_OPERATOR",
+    "ASSIGNMENT",
     "L_PARENTHESIS",
     "R_PARENTHESIS",
     "SYMBOLIC_NAME",
+    "TYPE_NAME",
 };
 
 enum TokenType
@@ -17,9 +19,11 @@ enum TokenType
     NUMERIC_VALUE,
     STRING_VALUE,
     MATH_OPERATOR,
+    ASSIGNMENT,
     L_PARENTHESIS,
     R_PARENTHESIS,
     SYMBOLIC_NAME,
+    TYPE_NAME,
 };
 
 struct Token
