@@ -149,5 +149,117 @@ public:
                 return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val + diff.float_val);
             }
         }
+        this->raiseExceptionBadOperation("+", diff);
+        return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.float_val);
+    }
+
+    Variable operator-(Variable &diff)
+    {
+        if (!this->isOperable(diff, "-"))
+        {
+            this->raiseExceptionBadOperation("-", diff);
+        }
+
+        else if (this->type == VariableType::INTEGER_TYPE)
+        {
+            if (diff.type == VariableType::INTEGER_TYPE)
+            {
+                return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val - diff.int_val);
+            }
+            else
+            {
+                return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val - diff.float_val);
+            }
+        }
+        else
+        {
+            if (diff.type == VariableType::INTEGER_TYPE)
+            {
+                return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val - diff.int_val);
+            }
+            else
+            {
+                return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val - diff.float_val);
+            }
+        }
+        this->raiseExceptionBadOperation("-", diff);
+        return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.float_val);
+    }
+
+    Variable operator*(Variable &diff)
+    {
+        if (!this->isOperable(diff, "*"))
+        {
+            this->raiseExceptionBadOperation("*", diff);
+        }
+
+        else if (this->type == VariableType::INTEGER_TYPE)
+        {
+            if (diff.type == VariableType::INTEGER_TYPE)
+            {
+                return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val * diff.int_val);
+            }
+            else
+            {
+                return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val * diff.float_val);
+            }
+        }
+        else
+        {
+            if (diff.type == VariableType::INTEGER_TYPE)
+            {
+                return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val * diff.int_val);
+            }
+            else
+            {
+                return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val * diff.float_val);
+            }
+        }
+        this->raiseExceptionBadOperation("*", diff);
+        return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.float_val);
+    }
+
+    Variable operator/(Variable &diff)
+    {
+        if (!this->isOperable(diff, "/"))
+        {
+            this->raiseExceptionBadOperation("/", diff);
+        }
+
+        else if (this->type == VariableType::INTEGER_TYPE)
+        {
+            if (diff.type == VariableType::INTEGER_TYPE)
+            {
+                return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val / diff.int_val);
+            }
+            else
+            {
+                return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val / diff.float_val);
+            }
+        }
+        else
+        {
+            if (diff.type == VariableType::INTEGER_TYPE)
+            {
+                return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.int_val);
+            }
+            else
+            {
+                return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.float_val);
+            }
+        }
+
+        this->raiseExceptionBadOperation("/", diff);
+        return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.float_val);
+    }
+
+    Variable operator%(Variable &diff)
+    {
+        if (!this->isOperable(diff, "%"))
+        {
+            this->raiseExceptionBadOperation("%", diff);
+        }
+
+        return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val % diff.int_val);
     }
 };

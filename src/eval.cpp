@@ -50,6 +50,14 @@ Variable Eval::evalMathOperatorExpression(Expression expr)
 
     if (expr.getValue() == "+")
         return l_val + r_val;
+    else if (expr.getValue() == "-")
+        return l_val - r_val;
+    else if (expr.getValue() == "*")
+        return l_val * r_val;
+    else if (expr.getValue() == "/")
+        return l_val / r_val;
+    else if (expr.getValue() == "%")
+        return l_val % r_val;
 }
 
 Variable Eval::evalLiteralExpression(Expression expr)

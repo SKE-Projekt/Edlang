@@ -35,6 +35,8 @@ public:
         this->line_number = 1;
         this->expressions = expressions_v;
 
+        std::reverse(this->expressions.begin(), this->expressions.end());
+
         this->debug = debug_v;
     }
 
