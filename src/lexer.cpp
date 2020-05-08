@@ -1,5 +1,34 @@
 #include "../include/lexer.h"
 
+std::pair<int, std::string> Lexer::parseStringValue(std::string end_char)
+{
+    int lines = 0;
+    std::string string_value = "";
+    this->c_sc_pos++;
+    while ((this->c_sc_pos < this->source_code.size()))
+    {
+        std::string curr_c = this->source_code.substr(this->c_sc_pos, 1);
+
+        if (curr_c == end_char)
+        {
+            this->c_sc_pos++;
+            return {lines, string_value};
+        }
+        else if (curr_c == "\n")
+        {
+            lines += 1;
+            string_value += curr_c;
+        }
+        else
+        {
+            string_value += curr_c;
+        }
+
+        this->c_sc_pos++;
+    }
+    throw Exception("Niezamknięty string", BAD_STRING_LITERAL, this->line_number);
+}
+
 std::string Lexer::parseNumericValue()
 {
     int numberOfDots = 1;
@@ -99,6 +128,12 @@ void Lexer::lex()
         else if (std::regex_match(curr_c, symbol_regex))
         {
             this->pushToken(TokenType::SYMBOLIC_NAME, this->parseSymbolicName());
+        }
+        else if (curr_c == "\"" || curr_c == "\'")
+        {
+            auto string_val = this->parseStringValue(curr_c);
+            this->pushToken(TokenType::STRING_VALUE, string_val.second);
+            this->line_number += string_val.first;
         }
         else
         {

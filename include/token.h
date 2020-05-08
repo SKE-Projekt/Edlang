@@ -4,6 +4,7 @@
 const std::string TokenTypeName[] = {
     "END_OF_STATEMENT",
     "NUMERIC_VALUE",
+    "STRING_VALUE",
     "MATH_OPERATOR",
     "L_PARENTHESIS",
     "R_PARENTHESIS",
@@ -14,6 +15,7 @@ enum TokenType
 {
     END_OF_STATEMENT,
     NUMERIC_VALUE,
+    STRING_VALUE,
     MATH_OPERATOR,
     L_PARENTHESIS,
     R_PARENTHESIS,

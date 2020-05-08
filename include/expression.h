@@ -6,6 +6,7 @@
 const std::string ExpressionTypeName[] = {
     "EMPTY",
     "NUMERIC_LITERAL",
+    "STRING_LITERAL",
     "MATH_OPERATOR",
 };
 
@@ -13,6 +14,7 @@ enum ExpressionType
 {
     EMPTY,
     NUMERIC_LITERAL,
+    STRING_LITERAL,
     EXPR_MATH_OPERATOR
 };
 

@@ -14,6 +14,7 @@ private:
 
     bool debug;
 
+    std::pair<int, std::string> parseStringValue(std::string end_char);
     std::string parseNumericValue();
     std::string parseSymbolicName();
 

@@ -74,7 +74,36 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
         }
         else
         {
+            if (this->debug)
+            {
+
+                std::cout << "PREV: " << std::endl;
+                token.printToken();
+            }
             throw Exception("Niespodziewany token " + token.body, UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
+        }
+    }
+    else if (token.type == TokenType::STRING_VALUE)
+    {
+        if (prev.getType() == ExpressionType::EMPTY)
+        {
+            auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
+            return this->getNextExpression(expr);
+        }
+        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR)
+        {
+            auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
+            return expr;
+        }
+        else
+        {
+            if (this->debug)
+            {
+
+                std::cout << "PREV: " << std::endl;
+                token.printToken();
+            }
+            throw Exception("LOL" + token.body, UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
         }
     }
     else if (token.type == TokenType::MATH_OPERATOR)
