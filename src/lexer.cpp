@@ -192,7 +192,7 @@ void Lexer::lex()
         else if (std::regex_match(curr_c, symbol_regex))
         {
             auto symbol = this->parseSymbolicName();
-            if (symbol == "eq" || symbol == "neq" || symbol == "leq" || symbol == "geq")
+            if (symbol == "eq" || symbol == "neq" || symbol == "leq" || symbol == "geq" || symbol == "and" || symbol == "or")
             {
                 this->pushToken(TokenType::LOGIC_OPERATOR, symbol);
             }

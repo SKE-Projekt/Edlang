@@ -37,3 +37,5 @@ const int SYMBOL_NOT_DECLARED = 30;
 const int BAD_FUNCTION_CALL = 31;
 const int EMPTY_FUNCTION_BODY = 32;
 const int BAD_FUNCTION_USAGE = 33;
+
+const int INCORRECT_TYPE = 34;

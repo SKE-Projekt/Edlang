@@ -1,0 +1,8 @@
+Int a;
+Read(a);
+
+If ((a % 2 eq 1) or a eq 4)
+    Print("a jest z przedziału 4-5");
+Else
+    Print("a nie jest z przedziału");
+EndIf

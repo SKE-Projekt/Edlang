@@ -289,6 +289,22 @@ Variable Eval::evalLogicOperatorExpression(Expression expr)
         return l_val >= r_val;
     else if (expr.getValue() == "neq")
         return l_val != r_val;
+    else if (expr.getValue() == "and" || expr.getValue() == "or")
+    {
+        if (l_val.type != VariableType::INTEGER_TYPE || r_val.type != VariableType::INTEGER_TYPE)
+        {
+            throw Exception("Operator " + expr.getValue() + " może być użyty tylko w wypadku wartości całkowitych", INCORRECT_TYPE, expr.getLineNumber());
+        }
+
+        if (expr.getValue() == "and")
+        {
+            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() && r_val.getIntVal());
+        }
+        else
+        {
+            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() || r_val.getIntVal());
+        }
+    }
     else
         return l_val == r_val;
 }
