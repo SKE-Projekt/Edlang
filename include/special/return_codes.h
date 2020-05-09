@@ -1,5 +1,8 @@
 #pragma once
 
+// TODO
+// Fix them up, tidy them. Make sure all are ACTUALLY USEFULL
+
 // Definitions of return codes for the language
 const int SUCCESS = 0;
 
@@ -32,3 +35,5 @@ const int REDECLARATION_OF_SYMBOL = 29;
 const int SYMBOL_NOT_DECLARED = 30;
 
 const int BAD_FUNCTION_CALL = 31;
+const int EMPTY_FUNCTION_BODY = 32;
+const int BAD_FUNCTION_USAGE = 33;

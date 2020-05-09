@@ -116,6 +116,11 @@ public:
         }
         return this->children[idx];
     }
+
+    std::vector<Expression> getChildren()
+    {
+        return this->children;
+    }
 };
 
 class OperatorExpression : Expression

@@ -275,7 +275,6 @@ Expression Parser::parseSymbolicToken(Token first_token)
         {
             auto expr = Expression(ExpressionType::FUNCTION_CALL, first_token.line_number);
             auto name_expr = Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body);
-            std::cout << "OKEJ" << std::endl;
             auto args_provided = this->getArgsProvided();
 
             expr.addChild(name_expr);
@@ -321,17 +320,15 @@ Expression Parser::getArgsProvided()
 {
     auto expr = Expression(ExpressionType::ARG_BLOCK_PROVIDED, this->last_token.line_number);
 
-    bool should_get_next = true;
+    bool should_get_next = false;
     while (true)
     {
         auto next_token = this->nextToken(__LINE__);
-        std::cout << "NEXT_TOKEN" << std::endl;
-        next_token.printToken();
         if (next_token.type == TokenType::R_PARENTHESIS)
         {
             if (should_get_next)
             {
-                throw Exception("Nie znalezion kolejnego argumentu w wywołaniu funkcji", BAD_FUNCTION_DECLARATION, next_token.line_number);
+                throw Exception("Nie znaleziono kolejnego argumentu w wywołaniu funkcji", BAD_FUNCTION_DECLARATION, next_token.line_number);
             }
             break;
         }
@@ -349,7 +346,6 @@ Expression Parser::getArgsProvided()
         if (should_get_next)
         {
             should_get_next = false;
-
             auto arg_expr = Expression(ExpressionType::ARG_PROVIDED, this->last_token.line_number);
             auto arg_val_expr = this->getNexedExpr();
             arg_expr.addChild(arg_val_expr);
@@ -377,19 +373,12 @@ Expression Parser::getFunctionBody()
         token = this->nextToken(__LINE__);
     }
 
-    std::cout << "FUNCTION BODY TOKENS: " << std::endl;
-    for (auto t : function_tokens)
-    {
-        t.printToken();
-    }
-
     Parser function_parser(function_tokens, true);
     function_parser.parse();
 
     auto expr = Expression(ExpressionType::FUNCTION_BODY, line_number);
     for (auto c : function_parser.getExprs())
         expr.addChild(c);
-    std::cout << "WSZYSTKO OKEJ" << std::endl;
     return expr;
 }
 

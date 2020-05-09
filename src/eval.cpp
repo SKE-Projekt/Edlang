@@ -41,6 +41,9 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     case ExpressionType::DECLARATION:
         return this->evalVariableDeclaration(expr);
         break;
+    case ExpressionType::FUNCTION_DECLARATION:
+        return this->evalFunctionDeclaration(expr);
+        break;
     case ExpressionType::EXPR_ASSIGNMENT:
         return this->evalVariableAssignment(expr);
         break;
@@ -50,6 +53,14 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     default:
         throw Exception("Nieobsługiwane wyrażenie", UNHANDLED_EXPRESSION, expr.getLineNumber());
     }
+}
+
+Variable Eval::evalFunctionDeclaration(Expression expr)
+{
+    Function func = Function(expr);
+    this->getScope().declareFunction(expr);
+
+    return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), false);
 }
 
 Variable Eval::evalIfBlock(Expression expr)

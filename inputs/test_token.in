@@ -1,5 +1,9 @@
-Int test = If (1)
-    If(2)
-        2;
-    EndIf
-EndIf
+Function test_function() : Int
+    2;
+EndFunction
+
+test_function();
+
+Function test_function2(Int arg, String arg2) : Int
+    1;
+EndFunction

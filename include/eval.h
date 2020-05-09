@@ -4,6 +4,7 @@
 #include "expression.h"
 #include "exception.h"
 #include "variable.h"
+#include "function.h"
 #include "scope.h"
 
 class Eval
@@ -34,6 +35,7 @@ private:
     Variable evalMathOperatorExpression(Expression expr);
     Variable evalVariableDeclaration(Expression expr);
     Variable evalVariableAssignment(Expression expr);
+    Variable evalFunctionDeclaration(Expression expr);
 
 public:
     Eval(std::vector<Expression> expressions_v, bool debug_v = false)
@@ -52,7 +54,6 @@ public:
         return scopes[this->scopes.size() - 1];
     }
 
-    void
-    eval();
+    void eval();
     Variable evalExpr(Expression expr, bool scoped = false);
 };
