@@ -19,3 +19,4 @@ Język edukacyjny będący częścią projektu SKE
 * While loop []
 * Arrays(actually lists, for now with simple native functions) []
 * Add simple tests to check if everything works []
+* Speed it up a LOT(like 5x) []
