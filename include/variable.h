@@ -33,6 +33,11 @@ private:
         throw Exception("Użyto zmiennej przed nadaniem jej wartości", UNDEFINED_VARIABLE_USED, this->line_number);
     }
 
+    void raiseAssignedToUndefinedVar(Variable diff)
+    {
+        throw Exception("Próba przypisania nieokreślonej wartości", UNDEFINED_VARIABLE_USED, diff.getLineNumber());
+    }
+
     void raiseExceptionBadOperation(std::string operation, Variable other)
     {
         throw Exception("Niepoprawna operacja " + operation + " dla typów " + VariableTypeName[this->type] + " i " + VariableTypeName[other.type], BAD_TYPES_FOR_OPERATION, this->line_number);
@@ -278,6 +283,11 @@ public:
 
     Variable assign(Variable diff)
     {
+        if (!diff.defined_val)
+        {
+            this->raiseAssignedToUndefinedVar(diff);
+        }
+
         if (this->type != diff.type)
         {
             this->raiseExceptionBadOperation("=", diff);

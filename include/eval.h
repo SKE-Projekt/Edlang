@@ -29,6 +29,7 @@ private:
         return expr;
     }
 
+    Variable evalIfBlock(Expression expr);
     Variable evalLiteralExpression(Expression expr);
     Variable evalMathOperatorExpression(Expression expr);
     Variable evalVariableDeclaration(Expression expr);

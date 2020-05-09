@@ -1,7 +1,7 @@
-Int really;
-really = 12;
+If (2 - 2)
+    12 / 3;
+Else
+    2 + 1;
+EndIf
 
-String werid = "LKO";
-werid = "L";
-
-Int new = really;
+Int var = If (2 - 1) 12; EndIf

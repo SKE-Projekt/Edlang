@@ -44,9 +44,66 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     case ExpressionType::EXPR_ASSIGNMENT:
         return this->evalVariableAssignment(expr);
         break;
+    case ExpressionType::IF_BLOCK_EXPR:
+        return this->evalIfBlock(expr);
+        break;
     default:
         throw Exception("Nieobsługiwane wyrażenie", UNHANDLED_EXPRESSION, expr.getLineNumber());
     }
+}
+
+Variable Eval::evalIfBlock(Expression expr)
+{
+    std::vector<Expression> cases;
+    for (int i = 0; i < expr.childCount(); ++i)
+        cases.push_back(expr.getChild(i));
+
+    Expression expr_to_run = Expression(ExpressionType::EMPTY, expr.getLineNumber());
+    for (auto c : cases)
+    {
+        // Checking whether or not the cond is true
+        auto cond = c.getChild(0);
+
+        if (cond.getType() == ExpressionType::EMPTY)
+        {
+            // else block
+            expr_to_run = c;
+            break;
+        }
+
+        auto cond_var = this->evalExpr(cond);
+        bool is_true = false;
+        switch (cond_var.type)
+        {
+        case VariableType::INTEGER_TYPE:
+            is_true = (cond_var.getIntVal() != 0);
+            break;
+        case VariableType::FLOAT_TYPE:
+            is_true = (cond_var.getFloatVal() != 0.0);
+            break;
+        case VariableType::STRING_TYPE:
+            is_true = (cond_var.getStringVal() != "");
+            break;
+        }
+
+        if (is_true)
+        {
+            expr_to_run = c;
+            break;
+        }
+    }
+
+    if (expr_to_run.getType() == ExpressionType::EMPTY || expr_to_run.childCount() < 2)
+    {
+        return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), false);
+    }
+
+    for (int i = 1; i < expr_to_run.childCount() - 1; ++i)
+    {
+        this->evalExpr(expr_to_run.getChild(i));
+    }
+
+    return this->evalExpr(expr_to_run.getChild(expr.childCount() - 1));
 }
 
 Variable Eval::evalVariableDeclaration(Expression expr)
@@ -71,8 +128,6 @@ Variable Eval::evalVariableDeclaration(Expression expr)
         auto assign_expr = Expression(ExpressionType::EXPR_ASSIGNMENT, assign_val.getLineNumber());
         assign_expr.addChild(symbol_expr);
         assign_expr.addChild(assign_val);
-        std::cout << "TEST:" << std::endl;
-        assign_expr.printExpression();
         return this->evalExpr(assign_expr);
     }
 
