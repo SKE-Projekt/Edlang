@@ -2,7 +2,7 @@
 Język edukacyjny będący częścią projektu SKE
 
 
-## TODO
+## TODO for Open Beta
 * Make single operator Token [X]
 * Make string literals [X]
 * Variable definition and assignment [X]
@@ -15,8 +15,12 @@ Język edukacyjny będący częścią projektu SKE
 * Comments [x]
 * Logic operators(eq, <, >, leq, geq, neq, and, or) [x]
 * Simple console I/O [x]
-* Fix function calls as arguments(Prolly depth needed)
+* Fix function calls as arguments(Prolly depth needed) []
 * While loop []
 * Arrays(actually lists, for now with simple native functions) []
 * Add simple tests to check if everything works []
+
+# TODO in future
+
 * Speed it up a LOT(like 5x) []
+* Rewrite it to be ~5 times smaller []
