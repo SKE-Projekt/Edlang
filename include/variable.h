@@ -35,7 +35,7 @@ private:
 
     void raiseAssignedToUndefinedVar(Variable diff)
     {
-        throw Exception("Próba przypisania nieokreślonej wartości", UNDEFINED_VARIABLE_USED, diff.getLineNumber());
+        throw Exception("Próba użycia nieokreślonej wartości", UNDEFINED_VARIABLE_USED, diff.getLineNumber());
     }
 
     void raiseExceptionBadOperation(std::string operation, Variable other)
@@ -45,6 +45,11 @@ private:
 
     bool isOperable(Variable other, std::string operation)
     {
+        if (!other.defined_val || !this->defined_val)
+        {
+            this->raiseAssignedToUndefinedVar(other);
+        }
+
         if (operation == "%")
         {
             return this->type == VariableType::INTEGER_TYPE && other.type == VariableType::INTEGER_TYPE;
