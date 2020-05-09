@@ -16,11 +16,12 @@ Język edukacyjny będący częścią projektu SKE
 * Logic operators(eq, <, >, leq, geq, neq, and, or) [x]
 * Simple console I/O [x]
 * Fix function calls as arguments(Prolly depth needed) [x]
-* While loop []
-* Arrays(actually lists, for now with simple native functions) []
+* While loop [x]
 * Add simple tests to check if everything works []
 
 # TODO in future
 
+* Arrays(actually lists, for now with simple native functions) []
 * Speed it up a LOT(like 5x) []
+* Type casting with : operator []
 * Rewrite it to be ~5 times smaller []
