@@ -1,7 +1,5 @@
-If (2 - 2)
-    12 / 3;
-Else
-    2 + 1;
+Int test = If (1)
+    If(2)
+        2;
+    EndIf
 EndIf
-
-Int var = If (2 - 1) 12; EndIf

@@ -85,6 +85,7 @@ public:
         case ExpressionType::EXPR_MATH_OPERATOR:
         case ExpressionType::EXPR_ASSIGNMENT:
         case ExpressionType::IF_BLOCK_EXPR:
+        case ExpressionType::FUNCTION_CALL:
             return true;
             break;
         default:

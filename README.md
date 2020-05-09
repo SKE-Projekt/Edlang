@@ -9,5 +9,6 @@ Język edukacyjny będący częścią projektu SKE
 * If/ElseIf/Else/EndIf block [x]
 * Functions [x]
 * Evaluating current expressions []
+* Function calls []
 * Global and scope symbol table []
 * Simple console I/O []

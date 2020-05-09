@@ -22,7 +22,10 @@ private:
     Expression getArgsDeclaration();
     Expression getFunctionBody();
 
-    Token nextToken()
+    Expression getArgsProvided();
+    Expression getNexedExpr();
+
+    Token nextToken(int line = 1)
     {
         if (!this->tokens.empty())
         {
@@ -33,6 +36,12 @@ private:
             return token;
         }
 
+        if (this->debug)
+        {
+            this->last_token.printToken();
+            throw Exception("Niepełne wyrażenie [LINIA " + std::to_string(line) + "]", EXPECTED_MORE_TOKENS, this->last_token.line_number);
+        }
+        throw Exception("Niepełne wyrażenie [LINIA " + std::to_string(line) + "]", EXPECTED_MORE_TOKENS, this->last_token.line_number);
         throw Exception("Niepełne wyrażenie", EXPECTED_MORE_TOKENS, this->last_token.line_number);
     }
 
@@ -46,7 +55,7 @@ public:
             std::reverse(this->tokens.begin(), this->tokens.end());
     }
 
-    Expression getNextExpression(Expression prev = Expression(ExpressionType::EMPTY, 0), bool priority = false);
+    Expression getNextExpression(Expression prev = Expression(ExpressionType::EMPTY, 0), bool function_args = false);
     void parse();
 
     void debugTokens()

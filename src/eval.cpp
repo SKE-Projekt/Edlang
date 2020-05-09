@@ -103,7 +103,7 @@ Variable Eval::evalIfBlock(Expression expr)
         this->evalExpr(expr_to_run.getChild(i));
     }
 
-    return this->evalExpr(expr_to_run.getChild(expr.childCount() - 1));
+    return this->evalExpr(expr_to_run.getChild(expr_to_run.childCount() - 1));
 }
 
 Variable Eval::evalVariableDeclaration(Expression expr)

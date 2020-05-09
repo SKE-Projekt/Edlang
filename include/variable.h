@@ -33,6 +33,8 @@ private:
         throw Exception("Użyto zmiennej przed nadaniem jej wartości", UNDEFINED_VARIABLE_USED, this->line_number);
     }
 
+    // TODO
+    // Change the name to something better
     void raiseAssignedToUndefinedVar(Variable diff)
     {
         throw Exception("Próba użycia nieokreślonej wartości", UNDEFINED_VARIABLE_USED, diff.getLineNumber());

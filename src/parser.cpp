@@ -17,7 +17,7 @@ std::set<std::string> KEYWORDS = {
     "Function",
     "EndFunction"};
 
-Expression Parser::getNextExpression(Expression prev, bool priority)
+Expression Parser::getNextExpression(Expression prev, bool function_args)
 {
     if (this->tokens.empty())
     {
@@ -29,17 +29,18 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
         throw Exception("Nie znaleziono zakończenia wyrażenia", EXPECTED_EOF_TOKEN, this->last_token.line_number);
     }
 
-    auto token = this->tokens.back();
-    last_token = token;
-
+    auto token = this->nextToken(__LINE__);
     if (token.type == TokenType::END_OF_STATEMENT)
     {
-        if (prev.getType() == ExpressionType::EMPTY)
-            this->tokens.pop_back();
+        if (prev.getType() != ExpressionType::EMPTY)
+            this->tokens.push_back(token);
+        if (function_args)
+        {
+            throw Exception("Niepoprawny argument podany", BAD_FUNCTION_CALL, this->last_token.line_number);
+        }
         return prev;
     }
 
-    this->tokens.pop_back();
     if (token.type == TokenType::NUMERIC_VALUE)
     {
         if (prev.getType() == ExpressionType::EMPTY || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
@@ -54,21 +55,30 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
         }
         else
         {
-            if (this->debug)
+            if (this->debug || true)
             {
 
                 std::cout << "PREV: " << std::endl;
+                prev.printExpression();
                 token.printToken();
             }
             throw Exception("Niespodziewany token " + token.body, UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
         }
+    }
+    else if (token.type == TokenType::NEXT_OPERATOR)
+    {
+        if (!function_args)
+        {
+            throw Exception("Niespodziewanie natknięto się na ,", UNEXPECTED_TOKEN_IN_EXPR, this->last_token.line_number);
+        }
+        return prev;
     }
     else if (token.type == TokenType::STRING_VALUE)
     {
         if (prev.getType() == ExpressionType::EMPTY || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
         {
             auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
-            return this->getNextExpression(expr);
+            return this->getNextExpression(expr, function_args);
         }
         else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR)
         {
@@ -93,7 +103,9 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
 
         if (!prev.returnsValue() || !next_expr.returnsValue())
         {
-            throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, token.line_number);
+            prev.printExpression();
+            next_expr.printExpression();
+            throw Exception("2Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, token.line_number);
         }
 
         expr.addChild(prev);
@@ -101,7 +113,7 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
 
         if (tokens.back().type == TokenType::END_OF_STATEMENT)
             return expr;
-        return this->getNextExpression(expr);
+        return this->getNextExpression(expr, function_args);
     }
     else if (token.type == TokenType::L_PARENTHESIS)
     {
@@ -117,7 +129,7 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
         auto expr = this->parseSymbolicToken(token);
         if (expr.getType() == ExpressionType::DECLARATION)
         {
-            if (prev.getType() != ExpressionType::EMPTY)
+            if (prev.getType() != ExpressionType::EMPTY || function_args)
             {
                 throw Exception("Deklaracja nie może być cześcią innego wyrażenia", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
             }
@@ -130,20 +142,20 @@ Expression Parser::getNextExpression(Expression prev, bool priority)
         }
         else if (expr.getType() == ExpressionType::IF_BLOCK_EXPR)
         {
-            return expr;
+            return this->getNextExpression(expr);
         }
         else if (expr.getType() == ExpressionType::FUNCTION_DECLARATION)
         {
-            if (prev.getType() != ExpressionType::EMPTY)
+            if (prev.getType() != ExpressionType::EMPTY || function_args)
             {
                 throw Exception("Deklaracja nie może być cześcią innego wyrażenia", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
             }
 
             return expr;
         }
-        else if (expr.getType() == ExpressionType::SYMBOLIC_VALUE)
+        else if (expr.getType() == ExpressionType::SYMBOLIC_VALUE || expr.getType() == ExpressionType::FUNCTION_CALL)
         {
-            return expr;
+            return this->getNextExpression(expr);
         }
     }
     throw Exception("Nieobsługiwane wyrażenie " + token.body, UNHANDLED_EXPRESSION, token.line_number);
@@ -167,8 +179,8 @@ Expression Parser::parseSymbolicToken(Token first_token)
 {
     if (first_token.isSymbolicValue("Int") || first_token.isSymbolicValue("Float") || first_token.isSymbolicValue("String"))
     {
-        auto name_token = this->nextToken();
-        auto next_token = this->nextToken();
+        auto name_token = this->nextToken(__LINE__);
+        auto next_token = this->nextToken(__LINE__);
 
         if (name_token.type != TokenType::SYMBOLIC_NAME)
         {
@@ -210,7 +222,7 @@ Expression Parser::parseSymbolicToken(Token first_token)
     }
     else if (first_token.isSymbolicValue("Function"))
     {
-        auto name_token = this->nextToken();
+        auto name_token = this->nextToken(__LINE__);
         if (name_token.type != TokenType::SYMBOLIC_NAME || KEYWORDS.find(name_token.body) != KEYWORDS.end())
         {
             throw Exception("Niepoprawna nazwa funkcji " + name_token.body, BAD_FUNCTION_DECLARATION, name_token.line_number);
@@ -219,8 +231,8 @@ Expression Parser::parseSymbolicToken(Token first_token)
 
         auto args_expr = this->getArgsDeclaration();
 
-        auto type_op_token = this->nextToken();
-        auto type_token = this->nextToken();
+        auto type_op_token = this->nextToken(__LINE__);
+        auto type_token = this->nextToken(__LINE__);
         if (type_op_token.type != TokenType::TYPE_OPERATOR || type_token.type != TokenType::SYMBOLIC_NAME || !TYPE_NAMES.count(type_token.body))
         {
             throw Exception("Niepoprawny typ zwrotny funkcji", BAD_FUNCTION_DECLARATION, type_token.line_number);
@@ -244,7 +256,7 @@ Expression Parser::parseSymbolicToken(Token first_token)
     }
     else
     {
-        auto next_token = this->nextToken();
+        auto next_token = this->nextToken(__LINE__);
         if (next_token.type == TokenType::ASSIGNMENT)
         {
             auto expr = Expression(ExpressionType::EXPR_ASSIGNMENT, next_token.line_number);
@@ -259,8 +271,20 @@ Expression Parser::parseSymbolicToken(Token first_token)
             expr.addChild(assign_val);
             return expr;
         }
+        else if (next_token.type == TokenType::L_PARENTHESIS)
+        {
+            auto expr = Expression(ExpressionType::FUNCTION_CALL, first_token.line_number);
+            auto name_expr = Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body);
+            std::cout << "OKEJ" << std::endl;
+            auto args_provided = this->getArgsProvided();
+
+            expr.addChild(name_expr);
+            expr.addChild(args_provided);
+            return expr;
+        }
         else
         {
+            this->tokens.push_back(next_token);
             auto expr = Expression(ExpressionType::SYMBOLIC_VALUE, first_token.line_number, first_token.body);
             return expr;
         }
@@ -269,25 +293,103 @@ Expression Parser::parseSymbolicToken(Token first_token)
     throw Exception("Nieobsługiwana wartość symboliczna " + first_token.body, UNEXPECTED_SYMBOLIC_NAME, first_token.line_number);
 }
 
+//////////////// FUNCTION CALL
+Expression Parser::getNexedExpr()
+{
+    std::vector<Token> nexed_tokens;
+    auto token = this->nextToken(__LINE__);
+    while (token.type != TokenType::NEXT_OPERATOR && token.type != TokenType::R_PARENTHESIS)
+    {
+        nexed_tokens.push_back(token);
+        token = this->nextToken(__LINE__);
+    }
+    this->tokens.push_back(token);
+    nexed_tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", this->last_token.line_number));
+
+    Parser nexed_parser(nexed_tokens);
+    nexed_parser.parse();
+
+    if (nexed_parser.getExprs().empty())
+    {
+        throw Exception("Niepoprawne wyrażenie podane jako arugment", BAD_FUNCTION_CALL, this->last_token.line_number);
+    }
+
+    return nexed_parser.getExprs().back();
+}
+
+Expression Parser::getArgsProvided()
+{
+    auto expr = Expression(ExpressionType::ARG_BLOCK_PROVIDED, this->last_token.line_number);
+
+    bool should_get_next = true;
+    while (true)
+    {
+        auto next_token = this->nextToken(__LINE__);
+        std::cout << "NEXT_TOKEN" << std::endl;
+        next_token.printToken();
+        if (next_token.type == TokenType::R_PARENTHESIS)
+        {
+            if (should_get_next)
+            {
+                throw Exception("Nie znalezion kolejnego argumentu w wywołaniu funkcji", BAD_FUNCTION_DECLARATION, next_token.line_number);
+            }
+            break;
+        }
+        else if (next_token.type == TokenType::NEXT_OPERATOR)
+        {
+            should_get_next = true;
+            next_token.printToken();
+            throw Exception("Błedne wyrażenie podane jako arugment", BAD_FUNCTION_CALL, next_token.line_number);
+        }
+        else
+        {
+            this->tokens.push_back(next_token);
+        }
+
+        if (should_get_next)
+        {
+            should_get_next = false;
+
+            auto arg_expr = Expression(ExpressionType::ARG_PROVIDED, this->last_token.line_number);
+            auto arg_val_expr = this->getNexedExpr();
+            arg_expr.addChild(arg_val_expr);
+            expr.addChild(arg_expr);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return expr;
+}
+
 //////////////// FUNCTION DECLARATIONS
 
 Expression Parser::getFunctionBody()
 {
     std::vector<Token> function_tokens;
-    auto token = this->nextToken();
+    auto token = this->nextToken(__LINE__);
     int line_number = token.line_number;
     while (!token.isSymbolicValue("EndFunction"))
     {
         function_tokens.push_back(token);
-        token = this->nextToken();
+        token = this->nextToken(__LINE__);
     }
 
-    Parser function_parser(function_tokens);
+    std::cout << "FUNCTION BODY TOKENS: " << std::endl;
+    for (auto t : function_tokens)
+    {
+        t.printToken();
+    }
+
+    Parser function_parser(function_tokens, true);
     function_parser.parse();
 
     auto expr = Expression(ExpressionType::FUNCTION_BODY, line_number);
     for (auto c : function_parser.getExprs())
         expr.addChild(c);
+    std::cout << "WSZYSTKO OKEJ" << std::endl;
     return expr;
 }
 
@@ -295,7 +397,7 @@ Expression Parser::getArgsDeclaration()
 {
     auto expr = Expression(ExpressionType::ARG_BLOCK_DECLARED, this->last_token.line_number);
 
-    if (this->nextToken().type != TokenType::L_PARENTHESIS)
+    if (this->nextToken(__LINE__).type != TokenType::L_PARENTHESIS)
     {
         throw Exception("Definicja funkcji wymaga podania argumentów", BAD_FUNCTION_DECLARATION, this->last_token.line_number);
     }
@@ -303,7 +405,7 @@ Expression Parser::getArgsDeclaration()
     bool should_get_next = false;
     while (true)
     {
-        auto type_token = this->nextToken();
+        auto type_token = this->nextToken(__LINE__);
         if (type_token.type == TokenType::R_PARENTHESIS)
         {
             if (should_get_next)
@@ -312,7 +414,7 @@ Expression Parser::getArgsDeclaration()
             }
             break;
         }
-        auto name_token = this->nextToken();
+        auto name_token = this->nextToken(__LINE__);
         if (type_token.type != TokenType::SYMBOLIC_NAME || !TYPE_NAMES.count(type_token.body))
         {
             throw Exception("Niepoprawny typ argumentu", BAD_FUNCTION_DECLARATION, type_token.line_number);
@@ -323,10 +425,10 @@ Expression Parser::getArgsDeclaration()
         }
 
         if (this->tokens.empty())
-            this->nextToken();
+            this->nextToken(__LINE__);
         if (this->tokens.back().type == TokenType::NEXT_OPERATOR)
         {
-            this->nextToken();
+            this->nextToken(__LINE__);
             should_get_next = true;
         }
         else
@@ -354,6 +456,7 @@ Expression Parser::getParenthesisedExpression()
     {
         auto token = this->tokens.back();
         this->tokens.pop_back();
+
         if (token.type == TokenType::R_PARENTHESIS && (--parenthesis_depth == 0))
         {
             parenthesised_tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", token.line_number));
@@ -385,9 +488,9 @@ Expression Parser::getParenthesisedExpression()
 }
 
 ////////////////////////// IF EXPRESSIONS
-
 Expression Parser::getIfBlock()
 {
+    int depth = 0;
     auto expr = Expression(ExpressionType::IF_BLOCK_EXPR, this->last_token.line_number);
     bool last_is_else = false;
 
@@ -395,7 +498,7 @@ Expression Parser::getIfBlock()
     {
         bool is_else = false;
 
-        if (this->tokens.back().isSymbolicValue("If") || this->tokens.back().isSymbolicValue("ElseIf") || this->tokens.back().isSymbolicValue("Else"))
+        if ((this->tokens.back().isSymbolicValue("If") || this->tokens.back().isSymbolicValue("ElseIf") || this->tokens.back().isSymbolicValue("Else")))
         {
             if (this->tokens.back().isSymbolicValue("Else"))
                 is_else = true;
@@ -434,11 +537,16 @@ Expression Parser::getIfExpression(bool is_else)
         }
     }
 
-    auto next_token = this->nextToken();
-    while (!next_token.isSymbolicValue("EndIf") && !next_token.isSymbolicValue("ElseIf") && !next_token.isSymbolicValue("Else"))
+    int depth = 0;
+    auto next_token = this->nextToken(__LINE__);
+    while (!next_token.isSymbolicValue("EndIf") && !next_token.isSymbolicValue("ElseIf") && !next_token.isSymbolicValue("Else") || (depth != 0))
     {
+        if (next_token.isSymbolicValue("If"))
+            depth += 1;
+        else if (next_token.isSymbolicValue("EndIf"))
+            --depth;
         if_tokens.push_back(next_token);
-        next_token = this->nextToken();
+        next_token = this->nextToken(__LINE__);
     }
 
     if (next_token.isSymbolicValue("ElseIf") || next_token.isSymbolicValue("Else"))
