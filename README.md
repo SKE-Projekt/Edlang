@@ -21,6 +21,7 @@ Język edukacyjny będący częścią projektu SKE
 
 # TODO in future
 
+* Make declarations usable in expression context []
 * Arrays(actually lists, for now with simple native functions) []
 * Speed it up a LOT(like 5x) []
 * Type casting with : operator []

@@ -1,0 +1,19 @@
+# Program to change decimal number to its binary rep
+# Kamil Tokarski
+Int var;
+String bin_var = "";
+
+Read(var);
+Int var_true = var;
+
+Loop(var > 0)
+    If (var % 2)
+        bin_var = "1" + bin_var;
+    Else
+        bin_var = "0" + bin_var;
+    EndIf
+
+    var = var / 2;
+EndLoop
+
+Print("Binary of ", var_true, " is ", bin_var);
