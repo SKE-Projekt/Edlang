@@ -377,11 +377,16 @@ Expression Parser::getArgsProvided()
 
 Expression Parser::getFunctionBody()
 {
+    int depth = 0;
     std::vector<Token> function_tokens;
     auto token = this->nextToken(__LINE__);
     int line_number = token.line_number;
-    while (!token.isSymbolicValue("EndFunction"))
+    while (!token.isSymbolicValue("EndFunction") || depth != 0)
     {
+        if (token.isSymbolicValue("Function"))
+            ++depth;
+        else if (token.isSymbolicValue("EndFunction"))
+            --depth;
         function_tokens.push_back(token);
         token = this->nextToken(__LINE__);
     }

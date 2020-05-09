@@ -1,0 +1,14 @@
+Function outer_function(Int a) : Int
+    Function inner_function(Int a) : Int
+        a = a / 2;
+        Print(a);
+    EndFunction
+
+    inner_function(a);
+    a * 2;
+EndFunction
+
+Int v;
+Read(v);
+
+Print(outer_function(v));
