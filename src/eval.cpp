@@ -34,7 +34,7 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
         return this->evalLiteralExpression(expr);
         break;
     case ExpressionType::SYMBOLIC_VALUE:
-        return this->getScope().getVariable(expr.getValue(), expr.getLineNumber());
+        return this->searchForVariable(expr.getValue(), expr.getLineNumber());
     case ExpressionType::EXPR_MATH_OPERATOR:
         return this->evalMathOperatorExpression(expr);
         break;
@@ -59,7 +59,6 @@ Variable Eval::evalFunctionDeclaration(Expression expr)
 {
     Function func = Function(expr);
     this->getScope().declareFunction(expr);
-
     return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), false);
 }
 
@@ -109,12 +108,15 @@ Variable Eval::evalIfBlock(Expression expr)
         return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), false);
     }
 
+    this->addNewScope();
     for (int i = 1; i < expr_to_run.childCount() - 1; ++i)
     {
         this->evalExpr(expr_to_run.getChild(i));
     }
+    auto return_var = this->evalExpr(expr_to_run.getChild(expr_to_run.childCount() - 1));
+    this->removeLastScope();
 
-    return this->evalExpr(expr_to_run.getChild(expr_to_run.childCount() - 1));
+    return return_var;
 }
 
 Variable Eval::evalVariableDeclaration(Expression expr)
@@ -151,7 +153,7 @@ Variable Eval::evalVariableAssignment(Expression expr)
     auto r_val_expr = expr.getChild(1);
 
     auto r_val = this->evalExpr(r_val_expr);
-    this->getScope().assignVariable(l_val_expr.getValue(), r_val);
+    this->searchForVariable(l_val_expr.getValue(), l_val_expr.getLineNumber(), true, r_val);
 
     return r_val;
 }

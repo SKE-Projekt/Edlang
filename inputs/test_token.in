@@ -1,9 +1,4 @@
-Function test_function() : Int
-    2;
-EndFunction
-
-test_function();
-
-Function test_function2(Int arg, String arg2) : Int
-    1;
-EndFunction
+If (2);
+    Int var = 2;
+    var;
+EndIf

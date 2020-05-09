@@ -30,6 +30,56 @@ private:
         return expr;
     }
 
+    void addNewScope(bool is_shared = true)
+    {
+        this->scopes.push_back(Scope(is_shared));
+    }
+    void removeLastScope()
+    {
+        this->scopes.pop_back();
+    }
+
+    Variable searchForVariable(std::string symbol, int line_number, bool assign = false, Variable var = Variable())
+    {
+        for (int i = (this->scopes.size() - 1); i >= 0; --i)
+        {
+
+            if (this->scopes[i].symbolIsFunction(symbol))
+            {
+                throw Exception(symbol + " jest funkcją nie zmienną", SYMBOL_NOT_DECLARED, line_number);
+            }
+            if (this->scopes[i].symbolIsVariable(symbol))
+            {
+                if (assign)
+                {
+                    this->scopes[i].assignVariable(symbol, var);
+                    return var;
+                }
+                return this->scopes[i].getVariable(symbol, line_number);
+            }
+        }
+
+        throw Exception("Nieznana nazwa " + symbol, SYMBOL_NOT_DECLARED, line_number);
+    }
+
+    Function searchForFunction(std::string symbol, int line_number)
+    {
+        for (int i = (this->scopes.size() - 1); i >= 0; --i)
+        {
+
+            if (this->scopes[i].symbolIsFunction(symbol))
+            {
+                throw Exception(symbol + " jest funkcją nie zmienną", SYMBOL_NOT_DECLARED, line_number);
+            }
+            if (this->scopes[i].symbolIsVariable(symbol))
+            {
+                return this->scopes[i].getFunction(symbol, line_number);
+            }
+        }
+
+        throw Exception("Nieznana nazwa " + symbol, SYMBOL_NOT_DECLARED, line_number);
+    }
+
     Variable evalIfBlock(Expression expr);
     Variable evalLiteralExpression(Expression expr);
     Variable evalMathOperatorExpression(Expression expr);
@@ -51,7 +101,7 @@ public:
 
     Scope &getScope()
     {
-        return scopes[this->scopes.size() - 1];
+        return scopes.back();
     }
 
     void eval();

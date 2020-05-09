@@ -71,10 +71,24 @@ public:
             {
                 throw Exception("Próba użycia wartości funkcji jako zmiennej" + symbol, BAD_FUNCTION_USAGE, line_number);
             }
-            throw Exception("Próba użycia wartości nieznanego symbolu" + symbol, SYMBOL_NOT_DECLARED, line_number);
+            throw Exception("Próba użycia wartości nieznanego symbolu " + symbol, SYMBOL_NOT_DECLARED, line_number);
         }
 
         return this->variables[symbol];
+    }
+
+    Function getFunction(std::string symbol, int line_number)
+    {
+        if (!this->symbolIsFunction(symbol))
+        {
+            if (this->symbolIsVariable(symbol))
+            {
+                throw Exception("Próba użycia wartości funkcji jako zmiennej" + symbol, BAD_FUNCTION_USAGE, line_number);
+            }
+            throw Exception("Próba użycia wartości nieznanego symbolu" + symbol, SYMBOL_NOT_DECLARED, line_number);
+        }
+
+        return this->functions[symbol];
     }
 
     void assignVariable(std::string symbol, Variable var)
