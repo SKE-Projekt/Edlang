@@ -124,7 +124,6 @@ Variable Eval::evalFunctionCall(Expression expr)
 
     // TODO
     // Fix line numbers
-    args_provided.printExpression();
     std::vector<Variable> args_to_provide;
     for (auto a : args_provided.getChildren())
     {

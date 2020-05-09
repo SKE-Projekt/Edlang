@@ -15,6 +15,7 @@ Język edukacyjny będący częścią projektu SKE
 * Comments [x]
 * Logic operators(eq, <, >, leq, geq, neq, and, or) [x]
 * Simple console I/O [x]
+* Fix function calls as arguments(Prolly depth needed)
 * While loop []
 * Arrays(actually lists, for now with simple native functions) []
 * Add simple tests to check if everything works []

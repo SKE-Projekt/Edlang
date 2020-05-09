@@ -1,6 +1,13 @@
-Int weird = 3;
-Print(weird, "SIEMKA");
+Int var;
+Read(var);
 
+Function fibb(Int n) : Int
+    If (n > 2)
+        fibb(n - 1) + fibb(n - 2);
+    Else
+        1;
+    EndIf
+EndFunction
 
-Read(weird);
-Print(weird);
+var = fibb(var);
+Print(var);
