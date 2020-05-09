@@ -462,6 +462,25 @@ public:
         return *this;
     }
 
+    Variable readNatively()
+    {
+        this->defined_val = true;
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            std::cin >> this->int_val;
+            break;
+        case VariableType::FLOAT_TYPE:
+            std::cin >> this->float_val;
+            break;
+        case VariableType::STRING_TYPE:
+            std::cin >> this->string_val;
+            break;
+        }
+
+        return *this;
+    }
+
     void printNatively()
     {
         if (!this->defined_val)

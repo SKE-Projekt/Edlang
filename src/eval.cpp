@@ -76,6 +76,28 @@ Variable Eval::evalFunctionCall(Expression expr)
 
         return nativePrintFunction(args_to_provide, expr.getLineNumber());
     }
+    else if (name_expr.getValue() == "Read")
+    {
+        auto args_provided = expr.getChild(1);
+        std::vector<Expression> args_to_provide;
+        for (auto a : args_provided.getChildren())
+        {
+            if (a.getChild(0).getType() != ExpressionType::SYMBOLIC_VALUE)
+            {
+                throw Exception("Próba przypisania wartości do wartości", BAD_FUNCTION_CALL, expr.getLineNumber());
+            }
+
+            args_to_provide.push_back(a.getChild(0));
+        }
+
+        Variable return_var;
+        for (auto s : args_to_provide)
+        {
+            auto symbol = s.getValue();
+            return_var = this->searchForVariableRef(symbol, s.getLineNumber()).readNatively();
+        }
+        return return_var;
+    }
 
     auto args_provided = expr.getChild(1);
     auto func = this->searchForFunction(name_expr.getValue(), name_expr.getLineNumber());

@@ -1,2 +1,6 @@
 Int weird = 3;
 Print(weird, "SIEMKA");
+
+
+Read(weird);
+Print(weird);

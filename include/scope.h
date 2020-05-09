@@ -77,6 +77,20 @@ public:
         return this->variables[symbol];
     }
 
+    Variable &getVariableRef(std::string symbol, int line_number)
+    {
+        if (!this->symbolIsVariable(symbol))
+        {
+            if (this->symbolIsFunction(symbol))
+            {
+                throw Exception("Próba użycia wartości funkcji jako zmiennej" + symbol, BAD_FUNCTION_USAGE, line_number);
+            }
+            throw Exception("Próba użycia wartości nieznanego symbolu " + symbol, SYMBOL_NOT_DECLARED, line_number);
+        }
+
+        return this->variables[symbol];
+    }
+
     Function getFunction(std::string symbol, int line_number)
     {
         if (!this->symbolIsFunction(symbol))

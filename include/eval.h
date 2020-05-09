@@ -62,6 +62,23 @@ private:
 
         throw Exception("Nieznana nazwa " + symbol, SYMBOL_NOT_DECLARED, line_number);
     }
+    Variable &searchForVariableRef(std::string symbol, int line_number)
+    {
+        for (int i = (this->scopes.size() - 1); i >= 0; --i)
+        {
+
+            if (this->scopes[i].symbolIsFunction(symbol))
+            {
+                throw Exception(symbol + " jest funkcją nie zmienną", SYMBOL_NOT_DECLARED, line_number);
+            }
+            if (this->scopes[i].symbolIsVariable(symbol))
+            {
+                return this->scopes[i].getVariableRef(symbol, line_number);
+            }
+        }
+
+        throw Exception("Nieznana nazwa " + symbol, SYMBOL_NOT_DECLARED, line_number);
+    }
 
     Function searchForFunction(std::string symbol, int line_number)
     {
