@@ -139,8 +139,24 @@ void Lexer::lex()
         }
         else if (operators.find(curr_c) != operators.npos)
         {
-            this->pushToken(TokenType::MATH_OPERATOR, curr_c);
-            this->c_sc_pos++;
+            if (this->c_sc_pos + 1 == this->source_code.size())
+            {
+                throw Exception("Niespodziewany koniec pliku źródłowego", EXPECTED_MORE_TOKENS, this->line_number);
+            }
+
+            auto next_token = this->source_code.substr(this->c_sc_pos + 1, 1);
+            if (std::regex_match(next_token, number_regex))
+            {
+                this->c_sc_pos++;
+                auto val = "-" + this->parseNumericValue();
+                this->pushToken(TokenType::NUMERIC_VALUE, val);
+            }
+            else
+            {
+
+                this->pushToken(TokenType::MATH_OPERATOR, curr_c);
+                this->c_sc_pos++;
+            }
         }
         else if (std::regex_match(curr_c, number_regex))
         {
