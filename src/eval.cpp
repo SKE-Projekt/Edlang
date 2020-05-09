@@ -56,9 +56,44 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     case ExpressionType::IF_BLOCK_EXPR:
         return this->evalIfBlock(expr);
         break;
+    case ExpressionType::LOOP:
+        return this->evalLoop(expr);
+        break;
     default:
         throw Exception("Nieobsługiwane wyrażenie", UNHANDLED_EXPRESSION, expr.getLineNumber());
     }
+}
+
+// TODO
+// Fix naming conventions
+Variable Eval::evalLoop(Expression expr)
+{
+    auto cond_expr = expr.getChild(0);
+    auto cond = this->evalExpr(cond_expr);
+
+    if (cond.type != VariableType::INTEGER_TYPE)
+    {
+        throw Exception("Warunek musi być wyrażeniem całkowitoliczbowym", INCORRECT_TYPE, cond_expr.getLineNumber());
+    }
+
+    Variable return_var;
+    auto body_expr = expr.getChild(1).getChildren();
+
+    this->addNewScope();
+    while (cond.getIntVal())
+    {
+        for (int i = 0; i < body_expr.size() - 1; ++i)
+            this->evalExpr(body_expr[i]);
+        return_var = this->evalExpr(body_expr.back());
+
+        cond = this->evalExpr(cond_expr);
+        if (cond.type != VariableType::INTEGER_TYPE)
+        {
+            throw Exception("Warunek musi być wyrażeniem całkowitoliczbowym", INCORRECT_TYPE, cond_expr.getLineNumber());
+        }
+    }
+    this->removeLastScope();
+    return return_var;
 }
 
 Variable Eval::evalFunctionCall(Expression expr)

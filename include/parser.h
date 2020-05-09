@@ -25,6 +25,9 @@ private:
     Expression getArgsProvided();
     std::vector<Expression> getNexedExpr();
 
+    Expression getLoopExpr();
+    Expression getLoopBody();
+
     Token nextToken(int line = 1)
     {
         if (!this->tokens.empty())

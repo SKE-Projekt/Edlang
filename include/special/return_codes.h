@@ -39,3 +39,4 @@ const int EMPTY_FUNCTION_BODY = 32;
 const int BAD_FUNCTION_USAGE = 33;
 
 const int INCORRECT_TYPE = 34;
+const int LOOP_COND_NOT_FOUND = 35;

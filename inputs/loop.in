@@ -1,0 +1,7 @@
+Int v;
+Read(v);
+
+Loop(v > 0)
+    Print("v = ", v);
+    v = v - 1;
+EndLoop

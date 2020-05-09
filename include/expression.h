@@ -23,6 +23,8 @@ const std::string ExpressionTypeName[] = {
     "FUNCTION_BODY",
     "FUNCTION_DECLARATION",
     "FUNCTION_CALL",
+    "LOOP",
+    "LOOP_BODY",
 };
 
 enum ExpressionType
@@ -46,6 +48,8 @@ enum ExpressionType
     FUNCTION_BODY,
     FUNCTION_DECLARATION,
     FUNCTION_CALL,
+    LOOP,
+    LOOP_BODY,
 };
 
 class Expression

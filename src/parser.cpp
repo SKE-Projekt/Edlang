@@ -175,6 +175,10 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
 
             return expr;
         }
+        else if (expr.getType() == ExpressionType::LOOP)
+        {
+            return expr;
+        }
         else if (expr.getType() == ExpressionType::SYMBOLIC_VALUE || expr.getType() == ExpressionType::FUNCTION_CALL)
         {
             return this->getNextExpression(expr);
@@ -276,6 +280,10 @@ Expression Parser::parseSymbolicToken(Token first_token)
         this->tokens.push_back(first_token);
         return this->getIfBlock();
     }
+    else if (first_token.isSymbolicValue("Loop"))
+    {
+        return this->getLoopExpr();
+    }
     else
     {
         auto next_token = this->nextToken(__LINE__);
@@ -312,6 +320,55 @@ Expression Parser::parseSymbolicToken(Token first_token)
     }
 
     throw Exception("Nieobsługiwana wartość symboliczna " + first_token.body, UNEXPECTED_SYMBOLIC_NAME, first_token.line_number);
+}
+
+///////////////// LOOP
+// TODO:
+// Create single function for all blocks
+Expression Parser::getLoopExpr()
+{
+    auto expr = Expression(ExpressionType::LOOP, this->last_token.line_number);
+
+    auto next_token = this->nextToken();
+    if (next_token.type != TokenType::L_PARENTHESIS)
+    {
+        throw Exception("Spodziewano się warunku pętli", LOOP_COND_NOT_FOUND, next_token.line_number);
+    }
+
+    auto cond = this->getParenthesisedExpression();
+    expr.addChild(cond);
+
+    auto body = this->getLoopBody();
+    expr.addChild(body);
+
+    return expr;
+}
+
+Expression Parser::getLoopBody()
+{
+    int depth = 0;
+    std::vector<Token> loop_tokens;
+
+    auto next_token = this->nextToken();
+    while (!next_token.isSymbolicValue("EndLoop") || (depth != 0))
+    {
+        if (next_token.isSymbolicValue("Loop"))
+            ++depth;
+        else if (next_token.isSymbolicValue("EndLoop"))
+            --depth;
+
+        loop_tokens.push_back(next_token);
+        next_token = this->nextToken();
+    }
+
+    Parser loop_parser(loop_tokens);
+    loop_parser.parse();
+
+    auto expr = Expression(ExpressionType::LOOP_BODY, 1);
+    for (auto e : loop_parser.getExprs())
+        expr.addChild(e);
+
+    return expr;
 }
 
 //////////////// FUNCTION CALL

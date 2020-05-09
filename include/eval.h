@@ -107,6 +107,8 @@ private:
     Variable evalFunctionDeclaration(Expression expr);
     Variable evalFunctionCall(Expression expr);
 
+    Variable evalLoop(Expression expr);
+
 public:
     Eval(std::vector<Expression> expressions_v, bool debug_v = false)
     {
