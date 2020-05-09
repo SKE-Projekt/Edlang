@@ -83,6 +83,7 @@ private:
     Variable evalIfBlock(Expression expr);
     Variable evalLiteralExpression(Expression expr);
     Variable evalMathOperatorExpression(Expression expr);
+    Variable evalLogicOperatorExpression(Expression expr);
     Variable evalVariableDeclaration(Expression expr);
     Variable evalVariableAssignment(Expression expr);
     Variable evalFunctionDeclaration(Expression expr);

@@ -48,7 +48,7 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
             auto expr = Expression(ExpressionType::NUMERIC_LITERAL, token.line_number, token.body);
             return this->getNextExpression(expr);
         }
-        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR)
+        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR || prev.getType() == ExpressionType::EXPR_LOGIC_OPERATOR)
         {
             auto expr = Expression(ExpressionType::NUMERIC_LITERAL, token.line_number, token.body);
             return expr;
@@ -80,7 +80,7 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
             auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
             return this->getNextExpression(expr, function_args);
         }
-        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR)
+        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR || prev.getType() == ExpressionType::EXPR_LOGIC_OPERATOR)
         {
             auto expr = Expression(ExpressionType::STRING_LITERAL, token.line_number, token.body);
             return expr;
@@ -106,6 +106,28 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
             prev.printExpression();
             next_expr.printExpression();
             throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, token.line_number);
+        }
+
+        expr.addChild(prev);
+        expr.addChild(next_expr);
+
+        if (tokens.back().type == TokenType::END_OF_STATEMENT)
+            return expr;
+        return this->getNextExpression(expr, function_args);
+    }
+    else if (token.type == TokenType::LOGIC_OPERATOR)
+    {
+        auto expr = Expression(ExpressionType::EXPR_LOGIC_OPERATOR, token.line_number, token.body);
+        auto next_expr = getNextExpression(expr);
+
+        if (!prev.returnsValue() || !next_expr.returnsValue())
+        {
+            if (!next_expr.returnsValue() || !(expr.getValue() == "neq" && prev.getType() == ExpressionType::EMPTY))
+            {
+                prev.printExpression();
+                next_expr.printExpression();
+                throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, token.line_number);
+            }
         }
 
         expr.addChild(prev);

@@ -38,6 +38,9 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     case ExpressionType::EXPR_MATH_OPERATOR:
         return this->evalMathOperatorExpression(expr);
         break;
+    case ExpressionType::EXPR_LOGIC_OPERATOR:
+        return this->evalLogicOperatorExpression(expr);
+        break;
     case ExpressionType::DECLARATION:
         return this->evalVariableDeclaration(expr);
         break;
@@ -222,6 +225,36 @@ Variable Eval::evalVariableAssignment(Expression expr)
     this->searchForVariable(l_val_expr.getValue(), l_val_expr.getLineNumber(), true, r_val);
 
     return r_val;
+}
+
+Variable Eval::evalLogicOperatorExpression(Expression expr)
+{
+    // Check special case for neq var;
+    if (expr.getValue() == "neq" && expr.getChild(0).getType() == ExpressionType::EMPTY)
+    {
+        auto r_val_expr = expr.getChild(1);
+        auto r_val = this->evalExpr(r_val_expr);
+
+        return !r_val;
+    }
+
+    // Everything is normal
+    auto l_val_expr = expr.getChild(0);
+    auto r_val_expr = expr.getChild(1);
+
+    auto l_val = this->evalExpr(l_val_expr);
+    auto r_val = this->evalExpr(r_val_expr);
+
+    if (expr.getValue() == ">")
+        return l_val > r_val;
+    else if (expr.getValue() == "<")
+        return l_val < r_val;
+    else if (expr.getValue() == "leq")
+        return l_val <= r_val;
+    else if (expr.getValue() == "geq")
+        return l_val >= r_val;
+    else
+        return l_val == r_val;
 }
 
 Variable Eval::evalMathOperatorExpression(Expression expr)

@@ -8,6 +8,7 @@ const std::string ExpressionTypeName[] = {
     "NUMERIC_LITERAL",
     "STRING_LITERAL",
     "MATH_OPERATOR",
+    "LOGIC_OPERATOR",
     "DECLARATION",
     "ASSIGNMENT",
     "SYMBOLIC_VALUE",
@@ -30,6 +31,7 @@ enum ExpressionType
     NUMERIC_LITERAL,
     STRING_LITERAL,
     EXPR_MATH_OPERATOR,
+    EXPR_LOGIC_OPERATOR,
     DECLARATION,
     EXPR_ASSIGNMENT,
     SYMBOLIC_VALUE,
@@ -86,6 +88,7 @@ public:
         case ExpressionType::EXPR_ASSIGNMENT:
         case ExpressionType::IF_BLOCK_EXPR:
         case ExpressionType::FUNCTION_CALL:
+        case ExpressionType::EXPR_LOGIC_OPERATOR:
             return true;
             break;
         default:

@@ -99,6 +99,8 @@ void Lexer::lex()
     std::regex symbol_regex("[a-zA-Z_]");
     std::regex whitespace_regex("[ \t]");
     std::string operators = "+-/*%";
+    std::string logic_operators[] = {
+        "<", ">", "eq", "neq", "leq", "geq"};
 
     this->line_number = 1;
     while (this->c_sc_pos < this->source_code.size())
@@ -115,6 +117,11 @@ void Lexer::lex()
             this->line_number++;
             this->c_sc_pos++;
             continue;
+        }
+        else if (curr_c == ">" || curr_c == "<")
+        {
+            this->pushToken(TokenType::LOGIC_OPERATOR, curr_c);
+            this->c_sc_pos++;
         }
         else if (std::regex_match(curr_c, whitespace_regex))
         {
@@ -139,6 +146,7 @@ void Lexer::lex()
         else if (curr_c == "#")
         {
             this->skipComment();
+            continue;
         }
         else if (curr_c == ",")
         {
@@ -183,7 +191,15 @@ void Lexer::lex()
         }
         else if (std::regex_match(curr_c, symbol_regex))
         {
-            this->pushToken(TokenType::SYMBOLIC_NAME, this->parseSymbolicName());
+            auto symbol = this->parseSymbolicName();
+            if (symbol == "eq" || symbol == "neq" || symbol == "leq" || symbol == "geq")
+            {
+                this->pushToken(TokenType::LOGIC_OPERATOR, symbol);
+            }
+            else
+            {
+                this->pushToken(TokenType::SYMBOLIC_NAME, symbol);
+            }
         }
         else
         {

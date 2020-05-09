@@ -178,6 +178,151 @@ public:
         return Variable(VariableType::FLOAT_TYPE, this->line_number, true, -1, this->float_val / diff.float_val);
     }
 
+    Variable operator!()
+    {
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            this->int_val = this->int_val == 0;
+            break;
+        case VariableType::FLOAT_TYPE:
+            this->int_val = this->float_val == 0.0;
+            break;
+        case VariableType::STRING_TYPE:
+            this->raiseExceptionBadOperation("!", *this);
+            break;
+        }
+
+        this->type == VariableType::INTEGER_TYPE;
+        return *this;
+    }
+
+    Variable operator==(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation("eq", diff);
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val == diff.getIntVal());
+            break;
+        case VariableType::FLOAT_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val == diff.getFloatVal());
+            break;
+        default:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val == diff.getStringVal());
+            break;
+        }
+    }
+
+    Variable operator!=(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation("neq", diff);
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val != diff.getIntVal());
+            break;
+        case VariableType::FLOAT_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val != diff.getFloatVal());
+            break;
+        default:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val != diff.getStringVal());
+            break;
+        }
+    }
+
+    Variable operator>(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation(">", diff);
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val > diff.getIntVal());
+            break;
+        case VariableType::FLOAT_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val > diff.getFloatVal());
+            break;
+        default:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val > diff.getStringVal());
+            break;
+        }
+    }
+
+    Variable operator<(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation("<", diff);
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val < diff.getIntVal());
+            break;
+        case VariableType::FLOAT_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val < diff.getFloatVal());
+            break;
+        default:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val < diff.getStringVal());
+            break;
+        }
+    }
+
+    Variable operator<=(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation("leq", diff);
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val <= diff.getIntVal());
+            break;
+        case VariableType::FLOAT_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val <= diff.getFloatVal());
+            break;
+        default:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val <= diff.getStringVal());
+            break;
+        }
+    }
+
+    Variable operator>=(Variable diff)
+    {
+        if (this->type != diff.type)
+        {
+            this->raiseExceptionBadOperation("geq", diff);
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val >= diff.getIntVal());
+            break;
+        case VariableType::FLOAT_TYPE:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val >= diff.getFloatVal());
+            break;
+        default:
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val >= diff.getStringVal());
+            break;
+        }
+    }
+
     Variable operator-(Variable &diff)
     {
         if (!this->isOperable(diff, "-"))
