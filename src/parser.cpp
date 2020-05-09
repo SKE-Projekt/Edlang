@@ -105,7 +105,7 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
         {
             prev.printExpression();
             next_expr.printExpression();
-            throw Exception("2Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, token.line_number);
+            throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, token.line_number);
         }
 
         expr.addChild(prev);
@@ -293,68 +293,53 @@ Expression Parser::parseSymbolicToken(Token first_token)
 }
 
 //////////////// FUNCTION CALL
-Expression Parser::getNexedExpr()
+std::vector<Expression> Parser::getNexedExpr()
 {
-    std::vector<Token> nexed_tokens;
-    auto token = this->nextToken(__LINE__);
-    while (token.type != TokenType::NEXT_OPERATOR && token.type != TokenType::R_PARENTHESIS)
+    std::vector<Expression> args_expr;
+    std::vector<Token> curr_expr;
+    bool should_break = false;
+    while (true)
     {
-        nexed_tokens.push_back(token);
-        token = this->nextToken(__LINE__);
+        curr_expr.clear();
+
+        auto next_token = this->nextToken();
+        while (next_token.type != TokenType::R_PARENTHESIS && next_token.type != TokenType::NEXT_OPERATOR)
+        {
+            curr_expr.push_back(next_token);
+            next_token = this->nextToken();
+        }
+        if (next_token.type == TokenType::R_PARENTHESIS)
+        {
+            should_break = true;
+        }
+
+        if (should_break && curr_expr.empty())
+        {
+            break;
+        }
+        curr_expr.push_back(Token(TokenType::END_OF_STATEMENT, ";", last_token.line_number));
+        Parser arg_parser(curr_expr);
+        arg_parser.parse();
+
+        auto arg_expr = Expression(ExpressionType::ARG_PROVIDED, next_token.line_number);
+        arg_expr.addChild(arg_parser.getExprs().back());
+        args_expr.push_back(arg_expr);
+
+        if (should_break)
+            break;
     }
-    this->tokens.push_back(token);
-    nexed_tokens.push_back(Token(TokenType::END_OF_STATEMENT, ";", this->last_token.line_number));
 
-    Parser nexed_parser(nexed_tokens);
-    nexed_parser.parse();
-
-    if (nexed_parser.getExprs().empty())
-    {
-        throw Exception("Niepoprawne wyrażenie podane jako arugment", BAD_FUNCTION_CALL, this->last_token.line_number);
-    }
-
-    return nexed_parser.getExprs().back();
+    return args_expr;
 }
 
 Expression Parser::getArgsProvided()
 {
     auto expr = Expression(ExpressionType::ARG_BLOCK_PROVIDED, this->last_token.line_number);
 
-    bool should_get_next = false;
-    while (true)
+    auto arg_vals = getNexedExpr();
+    for (auto a : arg_vals)
     {
-        auto next_token = this->nextToken(__LINE__);
-        if (next_token.type == TokenType::R_PARENTHESIS)
-        {
-            if (should_get_next)
-            {
-                throw Exception("Nie znaleziono kolejnego argumentu w wywołaniu funkcji", BAD_FUNCTION_DECLARATION, next_token.line_number);
-            }
-            break;
-        }
-        else if (next_token.type == TokenType::NEXT_OPERATOR)
-        {
-            should_get_next = true;
-            next_token.printToken();
-            throw Exception("Błedne wyrażenie podane jako arugment", BAD_FUNCTION_CALL, next_token.line_number);
-        }
-        else
-        {
-            this->tokens.push_back(next_token);
-        }
-
-        if (should_get_next)
-        {
-            should_get_next = false;
-            auto arg_expr = Expression(ExpressionType::ARG_PROVIDED, this->last_token.line_number);
-            auto arg_val_expr = this->getNexedExpr();
-            arg_expr.addChild(arg_val_expr);
-            expr.addChild(arg_expr);
-        }
-        else
-        {
-            break;
-        }
+        expr.addChild(a);
     }
 
     return expr;
@@ -373,7 +358,7 @@ Expression Parser::getFunctionBody()
         token = this->nextToken(__LINE__);
     }
 
-    Parser function_parser(function_tokens, true);
+    Parser function_parser(function_tokens);
     function_parser.parse();
 
     auto expr = Expression(ExpressionType::FUNCTION_BODY, line_number);

@@ -67,11 +67,11 @@ private:
         for (int i = (this->scopes.size() - 1); i >= 0; --i)
         {
 
-            if (this->scopes[i].symbolIsFunction(symbol))
-            {
-                throw Exception(symbol + " jest funkcją nie zmienną", SYMBOL_NOT_DECLARED, line_number);
-            }
             if (this->scopes[i].symbolIsVariable(symbol))
+            {
+                throw Exception(symbol + " jest zmienną nie funkcją", SYMBOL_NOT_DECLARED, line_number);
+            }
+            if (this->scopes[i].symbolIsFunction(symbol))
             {
                 return this->scopes[i].getFunction(symbol, line_number);
             }
@@ -86,6 +86,7 @@ private:
     Variable evalVariableDeclaration(Expression expr);
     Variable evalVariableAssignment(Expression expr);
     Variable evalFunctionDeclaration(Expression expr);
+    Variable evalFunctionCall(Expression expr);
 
 public:
     Eval(std::vector<Expression> expressions_v, bool debug_v = false)

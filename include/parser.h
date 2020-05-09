@@ -23,7 +23,7 @@ private:
     Expression getFunctionBody();
 
     Expression getArgsProvided();
-    Expression getNexedExpr();
+    std::vector<Expression> getNexedExpr();
 
     Token nextToken(int line = 1)
     {

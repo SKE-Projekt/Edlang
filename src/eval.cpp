@@ -44,6 +44,9 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     case ExpressionType::FUNCTION_DECLARATION:
         return this->evalFunctionDeclaration(expr);
         break;
+    case ExpressionType::FUNCTION_CALL:
+        return this->evalFunctionCall(expr);
+        break;
     case ExpressionType::EXPR_ASSIGNMENT:
         return this->evalVariableAssignment(expr);
         break;
@@ -53,6 +56,45 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     default:
         throw Exception("Nieobsługiwane wyrażenie", UNHANDLED_EXPRESSION, expr.getLineNumber());
     }
+}
+
+Variable Eval::evalFunctionCall(Expression expr)
+{
+    auto name_expr = expr.getChild(0);
+    auto args_provided = expr.getChild(1);
+    auto func = this->searchForFunction(name_expr.getValue(), name_expr.getLineNumber());
+    Variable return_val;
+    this->addNewScope();
+
+    std::vector<std::pair<Variable, std::string>> args_to_declare;
+    auto args_required = func.getArgsReq();
+    for (auto ar : args_required)
+    {
+        if (ar.getChild(0).getValue() == "Int")
+        {
+            args_to_declare.push_back({Variable(VariableType::INTEGER_TYPE, ar.getLineNumber()), ar.getChild(1).getValue()});
+        }
+        else if (ar.getChild(0).getValue() == "Float")
+        {
+            args_to_declare.push_back({Variable(VariableType::FLOAT_TYPE, ar.getLineNumber()), ar.getChild(1).getValue()});
+        }
+        else
+        {
+            args_to_declare.push_back({Variable(VariableType::STRING_TYPE, ar.getLineNumber()), ar.getChild(1).getValue()});
+        }
+    }
+
+    for (auto e : func.getBody())
+        return_val = this->evalExpr(e);
+
+    this->removeLastScope();
+
+    if (return_val.type != func.getReturnType())
+    {
+        throw Exception("Typ zwrócony przez funkcje nie pasuje(" + VariableTypeName[return_val.type] + " zamiast " + VariableTypeName[func.getReturnType()] + ")", BAD_FUNCTION_CALL, func.getBody().back().getLineNumber());
+    }
+
+    return return_val;
 }
 
 Variable Eval::evalFunctionDeclaration(Expression expr)

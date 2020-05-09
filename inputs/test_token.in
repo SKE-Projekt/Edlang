@@ -1,4 +1,12 @@
-If (2);
-    Int var = 2;
-    var;
-EndIf
+
+Function simple_function() : String
+    "String";
+EndFunction
+
+simple_function();
+
+Function not_so_simple(Int var) : Int
+    var / 2;
+EndFunction
+
+not_so_simple(2 + 2, 3);
