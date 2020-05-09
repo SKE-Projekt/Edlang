@@ -14,7 +14,7 @@ Język edukacyjny będący częścią projektu SKE
 * Negative numbers [x]
 * Comments [x]
 * Logic operators(eq, <, >, leq, geq, neq, and, or) [x]
-* Simple console I/O []
+* Simple console I/O [x]
 * While loop []
 * Arrays(actually lists, for now with simple native functions) []
 * Add simple tests to check if everything works []
