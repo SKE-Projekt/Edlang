@@ -11,5 +11,8 @@ Język edukacyjny będący częścią projektu SKE
 * Evaluating current expressions [x]
 * Global and scope symbol table [x]
 * Function calls [x]
+* Logic operators(eq, <, >, leq, geq, neq, and, or) []
 * Simple console I/O []
+* While loop []
+* Arrays(actually lists, for now with simple native functions) []
 * Add simple tests to check if everything works []

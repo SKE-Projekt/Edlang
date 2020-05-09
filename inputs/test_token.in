@@ -1,13 +1,13 @@
-
-Function simple_function() : String
-    "String";
+Function fibb (Int n) : Int
+    If (n - 1)
+        If (n - 2)
+            fibb(n - 1) + fibb(n - 2);
+        Else
+            1;
+        EndIf
+    Else
+        1;
+    EndIf
 EndFunction
 
-simple_function();
-
-Function not_so_simple(Int var, Int var2) : Int
-    var / var2;
-EndFunction
-
-not_so_simple(2 + 4, 2);
-var2;
+fibb(8);
