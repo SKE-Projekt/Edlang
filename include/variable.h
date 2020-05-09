@@ -462,6 +462,27 @@ public:
         return *this;
     }
 
+    void printNatively()
+    {
+        if (!this->defined_val)
+        {
+            this->raiseExceptionUndefined();
+        }
+
+        switch (this->type)
+        {
+        case VariableType::INTEGER_TYPE:
+            std::cout << this->int_val;
+            break;
+        case VariableType::FLOAT_TYPE:
+            std::cout << this->float_val;
+            break;
+        case VariableType::STRING_TYPE:
+            std::cout << this->string_val;
+            break;
+        }
+    }
+
     void undefy()
     {
         this->defined_val = false;

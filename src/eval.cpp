@@ -64,6 +64,19 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
 Variable Eval::evalFunctionCall(Expression expr)
 {
     auto name_expr = expr.getChild(0);
+
+    if (name_expr.getValue() == "Print")
+    {
+        auto args_provided = expr.getChild(1);
+        std::vector<Variable> args_to_provide;
+        for (auto a : args_provided.getChildren())
+        {
+            args_to_provide.push_back(this->evalExpr(a.getChild(0)));
+        }
+
+        return nativePrintFunction(args_to_provide, expr.getLineNumber());
+    }
+
     auto args_provided = expr.getChild(1);
     auto func = this->searchForFunction(name_expr.getValue(), name_expr.getLineNumber());
     Variable return_val;

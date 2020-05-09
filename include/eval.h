@@ -1,6 +1,7 @@
 #pragma once
 #include "special/std_libraries.h"
 #include "special/return_codes.h"
+#include "native_functions.h"
 #include "expression.h"
 #include "exception.h"
 #include "variable.h"
