@@ -1,5 +1,5 @@
 If (1 neq 0)
-    3 eq 4;
+    3 eq 3;
 ElseIf (2 geq 2)
     1 < 2;
 EndIf

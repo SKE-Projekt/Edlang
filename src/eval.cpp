@@ -253,6 +253,8 @@ Variable Eval::evalLogicOperatorExpression(Expression expr)
         return l_val <= r_val;
     else if (expr.getValue() == "geq")
         return l_val >= r_val;
+    else if (expr.getValue() == "neq")
+        return l_val != r_val;
     else
         return l_val == r_val;
 }
