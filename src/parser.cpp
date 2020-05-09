@@ -322,11 +322,17 @@ std::vector<Expression> Parser::getNexedExpr()
     bool should_break = false;
     while (true)
     {
+        int depth = 0;
         curr_expr.clear();
 
         auto next_token = this->nextToken();
-        while (next_token.type != TokenType::R_PARENTHESIS && next_token.type != TokenType::NEXT_OPERATOR)
+        while ((next_token.type != TokenType::R_PARENTHESIS && next_token.type != TokenType::NEXT_OPERATOR) || (depth != 0))
         {
+            if (next_token.type == TokenType::L_PARENTHESIS)
+                ++depth;
+            else if (next_token.type == TokenType::R_PARENTHESIS)
+                --depth;
+
             curr_expr.push_back(next_token);
             next_token = this->nextToken();
         }
@@ -339,10 +345,10 @@ std::vector<Expression> Parser::getNexedExpr()
         {
             break;
         }
+
         curr_expr.push_back(Token(TokenType::END_OF_STATEMENT, ";", last_token.line_number));
         Parser arg_parser(curr_expr);
         arg_parser.parse();
-
         auto arg_expr = Expression(ExpressionType::ARG_PROVIDED, next_token.line_number);
         arg_expr.addChild(arg_parser.getExprs().back());
         args_expr.push_back(arg_expr);

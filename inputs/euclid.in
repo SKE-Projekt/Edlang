@@ -1,0 +1,15 @@
+Function euclid(Int a, Int b) : Int
+	If (b eq 0)
+		a;
+	Else
+		euclid(b, a % b);
+	EndIf
+EndFunction
+
+Int a;
+Int b;
+
+Read(a, b);
+
+Int ex = euclid(a, b);
+Print(euclid(a, b));
