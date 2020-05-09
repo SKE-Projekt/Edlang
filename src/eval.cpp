@@ -84,6 +84,30 @@ Variable Eval::evalFunctionCall(Expression expr)
         }
     }
 
+    // TODO
+    // Fix line numbers
+    args_provided.printExpression();
+    std::vector<Variable> args_to_provide;
+    for (auto a : args_provided.getChildren())
+    {
+        args_to_provide.push_back(this->evalExpr(a.getChild(0)));
+    }
+    if (args_to_provide.size() != args_to_declare.size())
+    {
+        throw Exception("Niepoprawna liczba argumentów podana do funkcji(otrzymano " + std::to_string(args_to_provide.size()) + " zamiast " + std::to_string(args_to_declare.size()) + ")", BAD_FUNCTION_CALL, name_expr.getLineNumber());
+    }
+
+    for (int i = 0; i < args_to_declare.size(); ++i)
+    {
+        if (args_to_provide[i].type != args_to_declare[i].first.type)
+        {
+            throw Exception("Typ " + std::to_string(i + 1) + " argumentu nie zgadza się", BAD_FUNCTION_CALL, name_expr.getLineNumber());
+        }
+
+        this->getScope().declareVariable(args_to_declare[i].second, args_to_provide[i]);
+        this->getScope().assignVariable(args_to_declare[i].second, args_to_provide[i]);
+    }
+
     for (auto e : func.getBody())
         return_val = this->evalExpr(e);
 

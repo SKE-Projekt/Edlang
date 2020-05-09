@@ -10,6 +10,6 @@ Język edukacyjny będący częścią projektu SKE
 * Functions [x]
 * Evaluating current expressions [x]
 * Global and scope symbol table [x]
-* Function calls []
+* Function calls [x]
 * Simple console I/O []
 * Add simple tests to check if everything works []

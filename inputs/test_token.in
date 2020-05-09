@@ -5,8 +5,9 @@ EndFunction
 
 simple_function();
 
-Function not_so_simple(Int var) : Int
-    var / 2;
+Function not_so_simple(Int var, Int var2) : Int
+    var / var2;
 EndFunction
 
-not_so_simple(2 + 2, 3);
+not_so_simple(2 + 4, 2);
+var2;
