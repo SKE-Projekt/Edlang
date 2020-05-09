@@ -56,6 +56,21 @@ std::string Lexer::parseNumericValue()
     return number;
 }
 
+void Lexer::skipComment()
+{
+    while (this->c_sc_pos < this->source_code.size())
+    {
+
+        std::string curr_c = this->source_code.substr(this->c_sc_pos, 1);
+        this->c_sc_pos++;
+        if (curr_c == "\n")
+        {
+            this->line_number++;
+            break;
+        }
+    }
+}
+
 std::string Lexer::parseSymbolicName()
 {
     std::regex symbolic_regex("[_a-zA-Z0-9]");
@@ -121,6 +136,10 @@ void Lexer::lex()
             this->pushToken(TokenType::ASSIGNMENT, "=");
             this->c_sc_pos++;
         }
+        else if (curr_c == "#")
+        {
+            this->skipComment();
+        }
         else if (curr_c == ",")
         {
             this->pushToken(TokenType::NEXT_OPERATOR, ",");
@@ -173,7 +192,8 @@ void Lexer::lex()
 
         if (this->debug)
         {
-            this->tokens.back().printToken();
+            if (!this->tokens.empty())
+                this->tokens.back().printToken();
         }
     }
 }

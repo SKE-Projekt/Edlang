@@ -18,6 +18,8 @@ private:
     std::string parseNumericValue();
     std::string parseSymbolicName();
 
+    void skipComment();
+
     void pushToken(TokenType type_v, std::string body_v)
     {
         this->tokens.push_back(Token(type_v, body_v, this->line_number));
