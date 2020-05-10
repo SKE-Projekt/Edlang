@@ -23,7 +23,7 @@ private:
     Expression getFunctionBody();
 
     Expression getArgsProvided();
-    std::vector<Expression> getNexedExpr();
+    std::vector<Expression> getNexedExpr(TokenType DELIMITER = TokenType::R_PARENTHESIS, TokenType STARTER = TokenType::L_PARENTHESIS);
 
     Expression getLoopExpr();
     Expression getLoopBody();

@@ -7,6 +7,7 @@ const std::string ExpressionTypeName[] = {
     "EMPTY",
     "NUMERIC_LITERAL",
     "STRING_LITERAL",
+    "LIST_LITERAL",
     "MATH_OPERATOR",
     "LOGIC_OPERATOR",
     "DECLARATION",
@@ -32,6 +33,7 @@ enum ExpressionType
     EMPTY,
     NUMERIC_LITERAL,
     STRING_LITERAL,
+    LIST_LITERAL,
     EXPR_MATH_OPERATOR,
     EXPR_LOGIC_OPERATOR,
     DECLARATION,
@@ -49,7 +51,7 @@ enum ExpressionType
     FUNCTION_DECLARATION,
     FUNCTION_CALL,
     LOOP,
-    LOOP_BODY,
+    LOOP_BODY
 };
 
 class Expression
@@ -93,6 +95,7 @@ public:
         case ExpressionType::IF_BLOCK_EXPR:
         case ExpressionType::FUNCTION_CALL:
         case ExpressionType::EXPR_LOGIC_OPERATOR:
+        case ExpressionType::LIST_LITERAL:
             return true;
             break;
         default:

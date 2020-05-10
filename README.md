@@ -17,12 +17,12 @@ Język edukacyjny będący częścią projektu SKE
 * Simple console I/O [x]
 * Fix function calls as arguments(Prolly depth needed) [x]
 * While loop [x]
+* Arrays(actually lists, for now with simple native functions) []
+* Type casting with : operator []
 * Add simple tests to check if everything works []
 
 # TODO in future
 
 * Make declarations usable in expression context []
-* Arrays(actually lists, for now with simple native functions) []
 * Speed it up a LOT(like 5x) []
-* Type casting with : operator []
 * Rewrite it to be ~5 times smaller []

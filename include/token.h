@@ -10,6 +10,8 @@ const std::string TokenTypeName[] = {
     "ASSIGNMENT",
     "L_PARENTHESIS",
     "R_PARENTHESIS",
+    "L_BRACKET",
+    "R_BRACKET",
     "NEXT_OPERATOR",
     "TYPE_OPERATOR",
     "SYMBOLIC_NAME",
@@ -26,6 +28,8 @@ enum TokenType
     L_PARENTHESIS,
     R_PARENTHESIS,
     NEXT_OPERATOR,
+    L_BRACKET,
+    R_BRACKET,
     TYPE_OPERATOR,
     SYMBOLIC_NAME,
 };

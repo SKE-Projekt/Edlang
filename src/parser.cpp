@@ -4,18 +4,22 @@ std::map<std::string, bool> TYPE_NAMES = {
     {"Int", 1},
     {"Float", 1},
     {"String", 1},
+    {"List", 1},
 };
 
 std::set<std::string> KEYWORDS = {
     "Int",
     "Float",
     "String",
+    "List",
     "If",
     "ElseIf",
     "Else",
     "EndIf"
     "Function",
-    "EndFunction"};
+    "EndFunction",
+    "Loop",
+    "EndLoop"};
 
 Expression Parser::getNextExpression(Expression prev, bool function_args)
 {
@@ -55,15 +59,42 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
         }
         else
         {
-            if (this->debug || true)
+            if (this->debug)
             {
-
                 std::cout << "PREV: " << std::endl;
                 prev.printExpression();
                 token.printToken();
             }
             throw Exception("Niespodziewany token " + token.body, UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
         }
+    }
+    else if (token.type == TokenType::L_BRACKET)
+    {
+        auto expr = Expression(ExpressionType::LIST_LITERAL, token.line_number);
+        auto arg_expr = this->getNexedExpr(TokenType::R_BRACKET, TokenType::L_BRACKET);
+        for (auto e : arg_expr)
+            expr.addChild(e.getChild(0));
+
+        if (prev.getType() == ExpressionType::EMPTY || prev.getType() == ExpressionType::EXPR_ASSIGNMENT)
+        {
+            return this->getNextExpression(expr);
+        }
+        else if (prev.getType() == ExpressionType::EXPR_MATH_OPERATOR || prev.getType() == ExpressionType::EXPR_LOGIC_OPERATOR)
+        {
+            return expr;
+        }
+        else
+        {
+            if (this->debug)
+            {
+                std::cout << "PREV: " << std::endl;
+                prev.printExpression();
+                token.printToken();
+            }
+            throw Exception("Niespodziewany token " + token.body, UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
+        }
+
+        return expr;
     }
     else if (token.type == TokenType::NEXT_OPERATOR)
     {
@@ -203,7 +234,7 @@ void Parser::parse()
 
 Expression Parser::parseSymbolicToken(Token first_token)
 {
-    if (first_token.isSymbolicValue("Int") || first_token.isSymbolicValue("Float") || first_token.isSymbolicValue("String"))
+    if (first_token.isSymbolicValue("Int") || first_token.isSymbolicValue("Float") || first_token.isSymbolicValue("String") || first_token.isSymbolicValue("List"))
     {
         auto name_token = this->nextToken(__LINE__);
         auto next_token = this->nextToken(__LINE__);
@@ -372,7 +403,7 @@ Expression Parser::getLoopBody()
 }
 
 //////////////// FUNCTION CALL
-std::vector<Expression> Parser::getNexedExpr()
+std::vector<Expression> Parser::getNexedExpr(TokenType DELIMITER, TokenType STARTER)
 {
     std::vector<Expression> args_expr;
     std::vector<Token> curr_expr;
@@ -383,17 +414,17 @@ std::vector<Expression> Parser::getNexedExpr()
         curr_expr.clear();
 
         auto next_token = this->nextToken();
-        while ((next_token.type != TokenType::R_PARENTHESIS && next_token.type != TokenType::NEXT_OPERATOR) || (depth != 0))
+        while ((next_token.type != DELIMITER && next_token.type != TokenType::NEXT_OPERATOR) || (depth != 0))
         {
-            if (next_token.type == TokenType::L_PARENTHESIS)
+            if (next_token.type == STARTER)
                 ++depth;
-            else if (next_token.type == TokenType::R_PARENTHESIS)
+            else if (next_token.type == DELIMITER)
                 --depth;
 
             curr_expr.push_back(next_token);
             next_token = this->nextToken();
         }
-        if (next_token.type == TokenType::R_PARENTHESIS)
+        if (next_token.type == DELIMITER)
         {
             should_break = true;
         }

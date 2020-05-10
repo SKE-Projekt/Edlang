@@ -148,6 +148,16 @@ void Lexer::lex()
             this->skipComment();
             continue;
         }
+        else if (curr_c == "{")
+        {
+            this->pushToken(TokenType::L_BRACKET, "{");
+            this->c_sc_pos++;
+        }
+        else if (curr_c == "}")
+        {
+            this->pushToken(TokenType::R_BRACKET, "}");
+            this->c_sc_pos++;
+        }
         else if (curr_c == ",")
         {
             this->pushToken(TokenType::NEXT_OPERATOR, ",");

@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
 		Parser parser(lexer.getTokens(), debug);
 		parser.parse();
 
-		Eval eval(parser.getExprs(), debug);
-		eval.eval();
+		// Eval eval(parser.getExprs(), debug);
+		// eval.eval();
 	}
 	catch (Exception e)
 	{
