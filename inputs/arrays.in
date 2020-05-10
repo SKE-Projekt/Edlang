@@ -3,4 +3,7 @@ Read(v);
 
 List k = {2};
 k = {3, 2, 1};
+List a = {1, 2, 3};
+Print("k = ", k);
+Print("a neq k = ", a eq k);
 # k = k + {2};

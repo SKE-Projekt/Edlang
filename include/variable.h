@@ -8,6 +8,7 @@ const std::string VariableTypeName[] = {
     "INTEGER_TYPE",
     "FLOAT_TYPE",
     "STRING_TYPE",
+    "LIST_TYPE",
 };
 
 enum VariableType
@@ -15,6 +16,7 @@ enum VariableType
     INTEGER_TYPE,
     FLOAT_TYPE,
     STRING_TYPE,
+    LIST_TYPE,
 };
 
 class Variable
@@ -25,6 +27,7 @@ private:
     int int_val;
     float float_val;
     std::string string_val;
+    std::vector<Variable> list_val;
 
     bool defined_val;
 
@@ -72,7 +75,7 @@ public:
     {
     }
 
-    Variable(VariableType type_v, int line_number_v, bool defined_val_v = true, int int_val_v = -1, float float_val_v = -1, std::string string_val_v = "UNDEFINED")
+    Variable(VariableType type_v, int line_number_v, bool defined_val_v = true, int int_val_v = -1, float float_val_v = -1, std::string string_val_v = "UNDEFINED", std::vector<Variable> list_val_v = {})
     {
         this->line_number = line_number_v;
 
@@ -81,6 +84,7 @@ public:
         this->int_val = int_val_v;
         this->float_val = float_val_v;
         this->string_val = string_val_v;
+        this->list_val = list_val_v;
     }
 
     int getIntVal()
@@ -110,6 +114,16 @@ public:
         return this->string_val;
     }
 
+    std::vector<Variable> getListVal()
+    {
+        if (!this->defined_val)
+        {
+            this->raiseExceptionUndefined();
+        }
+
+        return this->list_val;
+    }
+
     int getLineNumber()
     {
         return this->line_number;
@@ -134,6 +148,10 @@ public:
             break;
         case VariableType::STRING_TYPE:
             std::cout << this->string_val;
+            break;
+        case VariableType::LIST_TYPE:
+            for (auto e : this->list_val)
+                e.printVariable();
             break;
         }
         std::cout << std::endl;
@@ -212,8 +230,32 @@ public:
         case VariableType::FLOAT_TYPE:
             return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val == diff.getFloatVal());
             break;
-        default:
+        case VariableType::STRING_TYPE:
             return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val == diff.getStringVal());
+            break;
+        default:
+            auto other_list = diff.getListVal();
+            bool equal = true;
+            if (this->list_val.size() != other_list.size())
+                equal = false;
+            else
+            {
+                for (int i = 0; i < this->list_val.size(); ++i)
+                {
+                    if (this->list_val[i].type != other_list[i].type)
+                    {
+                        equal = false;
+                        break;
+                    }
+                    else if ((this->list_val[i] != other_list[i]).getIntVal() == 0)
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+            }
+
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, equal);
             break;
         }
     }
@@ -457,6 +499,9 @@ public:
         case VariableType::STRING_TYPE:
             this->string_val = diff.string_val;
             break;
+        case VariableType::LIST_TYPE:
+            this->list_val = diff.list_val;
+            break;
         }
 
         return *this;
@@ -475,6 +520,10 @@ public:
             break;
         case VariableType::STRING_TYPE:
             std::cin >> this->string_val;
+            break;
+        case VariableType::LIST_TYPE:
+            for (auto e : this->list_val)
+                e.readNatively();
             break;
         }
 
@@ -499,6 +548,18 @@ public:
         case VariableType::STRING_TYPE:
             std::cout << this->string_val;
             break;
+        case VariableType::LIST_TYPE:
+            std::cout << "{";
+            for (int i = 0; i < this->list_val.size() - 1; ++i)
+            {
+                this->list_val[i].printNatively();
+                std::cout << ", ";
+            }
+            if (!this->list_val.empty())
+            {
+                this->list_val.back().printNatively();
+            }
+            std::cout << "}" << std::endl;
         }
     }
 

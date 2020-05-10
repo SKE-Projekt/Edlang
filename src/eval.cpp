@@ -31,6 +31,7 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
     {
     case ExpressionType::NUMERIC_LITERAL:
     case ExpressionType::STRING_LITERAL:
+    case ExpressionType::LIST_LITERAL:
         return this->evalLiteralExpression(expr);
         break;
     case ExpressionType::SYMBOLIC_VALUE:
@@ -267,6 +268,8 @@ Variable Eval::evalVariableDeclaration(Expression expr)
         type = VariableType::FLOAT_TYPE;
     else if (type_expr.getValue() == "String")
         type = VariableType::STRING_TYPE;
+    else if (type_expr.getValue() == "List")
+        type = VariableType::LIST_TYPE;
 
     Variable var = Variable(type, expr.getLineNumber(), false);
 
@@ -390,6 +393,13 @@ Variable Eval::evalLiteralExpression(Expression expr)
             int val = std::stoi(expr.getValue());
             return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, val);
         }
+    }
+    else if (expr.getType() == ExpressionType::LIST_LITERAL)
+    {
+        std::vector<Variable> list_val;
+        for (auto e : expr.getChildren())
+            list_val.push_back(this->evalExpr(e));
+        return Variable(VariableType::LIST_TYPE, expr.getLineNumber(), true, -1, -1, "UNDEFINED", list_val);
     }
     else
     {
