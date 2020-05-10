@@ -153,6 +153,16 @@ void Lexer::lex()
             this->pushToken(TokenType::L_BRACKET, "{");
             this->c_sc_pos++;
         }
+        else if (curr_c == "[")
+        {
+            this->pushToken(TokenType::L_SQR_PARENTHESIS, "[");
+            this->c_sc_pos++;
+        }
+        else if (curr_c == "]")
+        {
+            this->pushToken(TokenType::R_SQR_PARENTHESIS, "]");
+            this->c_sc_pos++;
+        }
         else if (curr_c == "}")
         {
             this->pushToken(TokenType::R_BRACKET, "}");

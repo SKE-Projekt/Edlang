@@ -18,6 +18,7 @@ Język edukacyjny będący częścią projektu SKE
 * Fix function calls as arguments(Prolly depth needed) [x]
 * While loop [x]
 * Arrays(actually lists, for now with simple native functions) [x]
+* Add [] operator [x]
 * Fix array operators [x]
 * (+=, -=, /= *=) []
 * Add simple tests to check if everything works []

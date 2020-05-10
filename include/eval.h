@@ -98,10 +98,15 @@ private:
         throw Exception("Nieznana nazwa " + symbol, SYMBOL_NOT_DECLARED, line_number);
     }
 
+    // TODO
+    // fix names of those function
+    // to follow one standard
     Variable evalIfBlock(Expression expr);
     Variable evalLiteralExpression(Expression expr);
     Variable evalMathOperatorExpression(Expression expr);
     Variable evalLogicOperatorExpression(Expression expr);
+    Variable evalIndexOperatorExpression(Expression expr);
+    Variable &evalIndexedVariableAssignment(Expression expr);
     Variable evalVariableDeclaration(Expression expr);
     Variable evalVariableAssignment(Expression expr);
     Variable evalFunctionDeclaration(Expression expr);

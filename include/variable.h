@@ -133,6 +133,11 @@ public:
         return this->list_val;
     }
 
+    std::vector<Variable> &getListValRef()
+    {
+        return this->list_val;
+    }
+
     int getLineNumber()
     {
         return this->line_number;

@@ -171,10 +171,44 @@ Expression Parser::getNextExpression(Expression prev, bool function_args)
             return expr;
         return this->getNextExpression(expr, function_args);
     }
+    else if (token.type == TokenType::L_SQR_PARENTHESIS)
+    {
+        auto expr = Expression(ExpressionType::EXPR_INDEX_OPERATOR, token.line_number);
+        auto index_expr = this->getNexedExpr(TokenType::R_SQR_PARENTHESIS, TokenType::L_SQR_PARENTHESIS).back();
+
+        if (!index_expr.returnsValue())
+        {
+            Exception("Niepoprawne wyrażenie użyte jako index", BAD_INDEX, index_expr.getLineNumber());
+        }
+
+        if (!prev.returnsValue())
+        {
+            Exception("Nie można uzyskać elementu podanego wyrażenia", BAD_INDEX, prev.getLineNumber());
+        }
+
+        expr.addChild(index_expr.getChild(0));
+        expr.addChild(prev);
+
+        return this->getNextExpression(expr);
+    }
     else if (token.type == TokenType::L_PARENTHESIS)
     {
         auto expr = this->getParenthesisedExpression();
         return this->getNextExpression(expr);
+    }
+    else if (token.type == TokenType::ASSIGNMENT && prev.getType() == ExpressionType::EXPR_INDEX_OPERATOR)
+    {
+        auto expr = Expression(ExpressionType::EXPR_ASSIGNMENT, token.line_number);
+        expr.addChild(prev);
+        auto assign_val = this->getNextExpression(expr);
+
+        if (!assign_val.returnsValue())
+        {
+            throw Exception("Podane wyrażenie jest nieprzypisywalne", EXPR_NOT_EVALUATING, assign_val.getLineNumber());
+        }
+
+        expr.addChild(assign_val);
+        return expr;
     }
     else if (token.type == TokenType::R_PARENTHESIS)
     {

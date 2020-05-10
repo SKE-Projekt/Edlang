@@ -10,6 +10,7 @@ const std::string ExpressionTypeName[] = {
     "LIST_LITERAL",
     "MATH_OPERATOR",
     "LOGIC_OPERATOR",
+    "INDEX_OPERATOR",
     "DECLARATION",
     "ASSIGNMENT",
     "SYMBOLIC_VALUE",
@@ -36,6 +37,7 @@ enum ExpressionType
     LIST_LITERAL,
     EXPR_MATH_OPERATOR,
     EXPR_LOGIC_OPERATOR,
+    EXPR_INDEX_OPERATOR,
     DECLARATION,
     EXPR_ASSIGNMENT,
     SYMBOLIC_VALUE,
@@ -96,6 +98,7 @@ public:
         case ExpressionType::FUNCTION_CALL:
         case ExpressionType::EXPR_LOGIC_OPERATOR:
         case ExpressionType::LIST_LITERAL:
+        case ExpressionType::EXPR_INDEX_OPERATOR:
             return true;
             break;
         default:
@@ -122,6 +125,7 @@ public:
     {
         if (this->children.size() <= idx)
         {
+            this->printExpression();
             throw Exception("Niewłaściwa budowa wyrażenia", INCORRECT_EXPRESSION_STRUCTURE, this->line_number);
         }
         return this->children[idx];

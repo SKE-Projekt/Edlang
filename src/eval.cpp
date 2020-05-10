@@ -36,11 +36,15 @@ Variable Eval::evalExpr(Expression expr, bool scoped)
         break;
     case ExpressionType::SYMBOLIC_VALUE:
         return this->searchForVariable(expr.getValue(), expr.getLineNumber());
+        break;
     case ExpressionType::EXPR_MATH_OPERATOR:
         return this->evalMathOperatorExpression(expr);
         break;
     case ExpressionType::EXPR_LOGIC_OPERATOR:
         return this->evalLogicOperatorExpression(expr);
+        break;
+    case ExpressionType::EXPR_INDEX_OPERATOR:
+        return this->evalIndexOperatorExpression(expr);
         break;
     case ExpressionType::DECLARATION:
         return this->evalVariableDeclaration(expr);
@@ -299,10 +303,52 @@ Variable Eval::evalVariableDeclaration(Expression expr)
     return var;
 }
 
+Variable &Eval::evalIndexedVariableAssignment(Expression expr)
+{
+    auto index = this->evalExpr(expr.getChild(0));
+    auto to_var = expr.getChild(1);
+
+    if (index.type != VariableType::INTEGER_TYPE)
+    {
+        throw Exception("Nieprawidłowy typ indeksu", BAD_INDEX, to_var.getLineNumber());
+    }
+
+    if (to_var.getType() == ExpressionType::EXPR_INDEX_OPERATOR)
+    {
+
+        auto &var = this->evalIndexedVariableAssignment(to_var);
+        auto &var_ref = var.getListValRef();
+        if (var_ref.size() <= index.getIntVal())
+        {
+            throw Exception("Indeks wykracza poza rozmiar listy", BAD_INDEX, index.getLineNumber());
+        }
+        return var.getListValRef()[index.getIntVal()];
+    }
+    else if (to_var.getType() != ExpressionType::SYMBOLIC_VALUE)
+    {
+        throw Exception("Przypisac mozna jedynie do zmiennej typu List", BAD_INDEX, to_var.getLineNumber());
+    }
+
+    auto &var = this->searchForVariableRef(to_var.getValue(), to_var.getLineNumber());
+    auto &var_ref = var.getListValRef();
+    if (var_ref.size() <= index.getIntVal())
+    {
+        throw Exception("Indeks wykracza", BAD_INDEX, index.getLineNumber());
+    }
+    return var.getListValRef()[index.getIntVal()];
+}
+
 Variable Eval::evalVariableAssignment(Expression expr)
 {
     auto l_val_expr = expr.getChild(0);
     auto r_val_expr = expr.getChild(1);
+
+    if (l_val_expr.getType() == ExpressionType::EXPR_INDEX_OPERATOR)
+    {
+        auto &variable_in_question = evalIndexedVariableAssignment(l_val_expr);
+        variable_in_question.assign(this->evalExpr(r_val_expr));
+        return variable_in_question;
+    }
 
     auto r_val = this->evalExpr(r_val_expr);
     this->searchForVariable(l_val_expr.getValue(), l_val_expr.getLineNumber(), true, r_val);
@@ -356,6 +402,40 @@ Variable Eval::evalLogicOperatorExpression(Expression expr)
     }
     else
         return l_val == r_val;
+}
+
+Variable Eval::evalIndexOperatorExpression(Expression expr)
+{
+    auto l_val_expr = expr.getChild(0);
+    auto r_val_expr = expr.getChild(1);
+
+    auto l_val = this->evalExpr(l_val_expr);
+    auto r_val = this->evalExpr(r_val_expr);
+
+    if (l_val.type != VariableType::INTEGER_TYPE)
+    {
+        throw Exception("Niepoprawny typ [" + VariableTypeName[l_val.type] + "] został użyty jako indeks", BAD_INDEX, l_val_expr.getLineNumber());
+    }
+
+    switch (r_val.type)
+    {
+    case VariableType::STRING_TYPE:
+        if (l_val.getIntVal() >= r_val.getStringVal().size())
+        {
+            throw Exception("Indeks[" + std::to_string(l_val.getIntVal()) + "] wykracza rozmiar elementu", BAD_INDEX, l_val.getLineNumber());
+        }
+        return Variable(VariableType::STRING_TYPE, r_val.getLineNumber(), true, -1, -1, std::to_string(r_val.getStringVal()[l_val.getIntVal()]));
+        break;
+    case VariableType::LIST_TYPE:
+        if (l_val.getIntVal() >= r_val.getListVal().size())
+        {
+            throw Exception("Indeks[" + std::to_string(l_val.getIntVal()) + "] wykracza rozmiar elementu", BAD_INDEX, l_val.getLineNumber());
+        }
+        return r_val.getListVal()[l_val.getIntVal()];
+        break;
+    default:
+        throw Exception("Nie można uzyskać indeksowanego elementu typu [" + VariableTypeName[r_val.type] + "]", BAD_INDEX, r_val_expr.getLineNumber());
+    }
 }
 
 Variable Eval::evalMathOperatorExpression(Expression expr)
