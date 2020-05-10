@@ -584,7 +584,7 @@ public:
             std::cin >> this->string_val;
             break;
         case VariableType::LIST_TYPE:
-            for (auto e : this->list_val)
+            for (auto &e : this->list_val)
                 e.readNatively();
             break;
         }
