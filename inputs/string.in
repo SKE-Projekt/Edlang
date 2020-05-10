@@ -1,0 +1,5 @@
+String name;
+Read(name);
+
+Print("Len(Name) = " Len(name));
+Print("Name[0] = " name[0]);

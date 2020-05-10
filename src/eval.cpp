@@ -424,7 +424,7 @@ Variable Eval::evalIndexOperatorExpression(Expression expr)
         {
             throw Exception("Indeks[" + std::to_string(l_val.getIntVal()) + "] wykracza rozmiar elementu", BAD_INDEX, l_val.getLineNumber());
         }
-        return Variable(VariableType::STRING_TYPE, r_val.getLineNumber(), true, -1, -1, std::to_string(r_val.getStringVal()[l_val.getIntVal()]));
+        return Variable(VariableType::STRING_TYPE, r_val.getLineNumber(), true, -1, -1, r_val.getStringVal().substr(l_val.getIntVal(), 1));
         break;
     case VariableType::LIST_TYPE:
         if (l_val.getIntVal() >= r_val.getListVal().size())
