@@ -1,0 +1,77 @@
+Function game() : Int
+    Int max_tries = 23;
+    Int low = 1;
+    Int high = 1000000;
+    Int return_val = 0;
+
+    String k;
+    Int loop_flag = 1;
+    Loop(loop_flag and max_tries)
+        Int m = (low + high) / 2;
+
+        Print("Czy twoja liczba to ", m, "?(HIGH-er/LOW-er/YES)");
+        Read(k);
+        If (k eq "HIGH")
+            low = m;
+        ElseIf (k eq "LOW")
+            high = m;
+        Else
+            loop_flag = 0;
+            Print("Wiedzialem");
+            return_val = 1;
+        EndIf
+        max_tries = max_tries - 1;
+    EndLoop
+
+    If (neq return_val)
+        Print("Pokonałeś mnie");
+    Else
+        Print("HAHA, udało mi się w zaledwie ", 23 - max_tries, " ruchach");
+    EndIf
+
+    return_val;
+EndFunction
+
+Function game_menu() : Int
+    Print("Wyżej czy niżej")
+    Print("Pomyśl o jakiejś liczbie z przedziału od 1 do 1000000");
+    Print("Jestem pewien, że na podstawie odpowiedzi WIEKSZA/MNIEJSZA będę w stanie bardzo szybko ją zgadnąć");
+    Print("Gotowy?");
+    Print("Tak - wpisz START; Chcesz wyjść - wpisz EXIT");
+
+    String k;
+    Int answer = 0;
+    Int exit_loop = 0;
+    Loop(neq exit_loop)
+        Read(k);
+        answer =
+        If (k eq "EXIT")
+            Print("Wszystko co dobre mija");
+            exit_loop = 1;
+            0;
+        ElseIf(k eq "START")
+            Print("Lecimy");
+            exit_loop = 1;
+            1;
+        Else
+            Print("Nie załapałem, możesz powtórzyć?");
+            1;
+        EndIf
+    EndLoop
+
+    If (neq answer)
+        0;
+    Else
+        game();
+    EndIf
+
+    Print("Chcesz zagrac jeszcze raz? (PLAY/EXIT?)");
+    Read(k);
+    If (k eq "PLAY")
+        1;
+    Else
+        0;
+    EndIf
+EndFunction
+
+Loop(game_menu())EndLoop
