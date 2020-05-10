@@ -19,7 +19,10 @@ std::set<std::string> KEYWORDS = {
     "Function",
     "EndFunction",
     "Loop",
-    "EndLoop"};
+    "EndLoop",
+    "Print",
+    "Read",
+    "Len"};
 
 Expression Parser::getNextExpression(Expression prev, bool function_args)
 {

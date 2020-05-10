@@ -6,3 +6,4 @@
 #include "variable.h"
 
 Variable nativePrintFunction(std::vector<Variable> args, int line_number);
+Variable nativeLenFunction(std::vector<Variable> args, int line_number);

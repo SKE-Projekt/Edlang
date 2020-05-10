@@ -64,6 +64,15 @@ private:
         {
             return this->type == other.type && operation == "+";
         }
+        else if (this->type == VariableType::LIST_TYPE)
+        {
+            if (operation == "+")
+                return other.type == VariableType::LIST_TYPE;
+            else if (operation == "-")
+                return other.type == VariableType::INTEGER_TYPE;
+            else
+                return false;
+        }
 
         return true;
     }
@@ -181,6 +190,19 @@ public:
                 return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->int_val + diff.float_val);
             }
         }
+        else if (this->type == VariableType::LIST_TYPE)
+        {
+            if (diff.type == VariableType::LIST_TYPE)
+            {
+                for (auto e : diff.getListVal())
+                    this->list_val.push_back(e);
+            }
+            else
+            {
+                this->list_val.push_back(diff);
+            }
+            return *this;
+        }
         else
         {
             if (diff.type == VariableType::INTEGER_TYPE)
@@ -207,6 +229,9 @@ public:
             this->int_val = this->float_val == 0.0;
             break;
         case VariableType::STRING_TYPE:
+            this->raiseExceptionBadOperation("!", *this);
+            break;
+        case VariableType::LIST_TYPE:
             this->raiseExceptionBadOperation("!", *this);
             break;
         }
@@ -247,7 +272,7 @@ public:
                         equal = false;
                         break;
                     }
-                    else if ((this->list_val[i] != other_list[i]).getIntVal() == 0)
+                    else if ((this->list_val[i] == other_list[i]).getIntVal() == 0)
                     {
                         equal = false;
                         break;
@@ -275,8 +300,32 @@ public:
         case VariableType::FLOAT_TYPE:
             return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->float_val != diff.getFloatVal());
             break;
-        default:
+        case VariableType::STRING_TYPE:
             return Variable(VariableType::INTEGER_TYPE, this->line_number, true, this->string_val != diff.getStringVal());
+            break;
+        default:
+            auto other_list = diff.getListVal();
+            bool equal = true;
+            if (this->list_val.size() != other_list.size())
+                equal = false;
+            else
+            {
+                for (int i = 0; i < this->list_val.size(); ++i)
+                {
+                    if (this->list_val[i].type != other_list[i].type)
+                    {
+                        equal = false;
+                        break;
+                    }
+                    else if ((this->list_val[i] == other_list[i]).getIntVal() == 0)
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+            }
+
+            return Variable(VariableType::INTEGER_TYPE, this->line_number, true, equal == false);
             break;
         }
     }
@@ -371,7 +420,15 @@ public:
         {
             this->raiseExceptionBadOperation("-", diff);
         }
-
+        else if (this->type == VariableType::LIST_TYPE)
+        {
+            int val = diff.getIntVal();
+            while (!this->list_val.empty() && (val--))
+            {
+                this->list_val.pop_back();
+            }
+            return *this;
+        }
         else if (this->type == VariableType::INTEGER_TYPE)
         {
             if (diff.type == VariableType::INTEGER_TYPE)
@@ -559,7 +616,7 @@ public:
             {
                 this->list_val.back().printNatively();
             }
-            std::cout << "}" << std::endl;
+            std::cout << "}";
         }
     }
 

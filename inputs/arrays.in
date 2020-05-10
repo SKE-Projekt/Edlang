@@ -1,9 +1,18 @@
-Int v;
-Read(v);
+List l = {1};
+Print("l = ", l);
 
-List k = {2};
-k = {3, 2, 1};
-List a = {1, 2, 3};
-Print("k = ", k);
-Print("a neq k = ", a eq k);
-# k = k + {2};
+Int n;
+Read(n);
+
+Loop(n neq 0)
+    Int k;
+    Read(k);
+    l = l + {k};
+
+    Print("l = ", l);
+
+    n = n - 1;
+EndLoop
+
+Print("l = ", l);
+Print(Len(l));

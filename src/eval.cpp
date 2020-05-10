@@ -80,9 +80,9 @@ Variable Eval::evalLoop(Expression expr)
     Variable return_var;
     auto body_expr = expr.getChild(1).getChildren();
 
-    this->addNewScope();
     while (cond.getIntVal())
     {
+        this->addNewScope();
         for (int i = 0; i < body_expr.size() - 1; ++i)
             this->evalExpr(body_expr[i]);
         return_var = this->evalExpr(body_expr.back());
@@ -92,8 +92,8 @@ Variable Eval::evalLoop(Expression expr)
         {
             throw Exception("Warunek musi być wyrażeniem całkowitoliczbowym", INCORRECT_TYPE, cond_expr.getLineNumber());
         }
+        this->removeLastScope();
     }
-    this->removeLastScope();
     return return_var;
 }
 
@@ -133,6 +133,17 @@ Variable Eval::evalFunctionCall(Expression expr)
             return_var = this->searchForVariableRef(symbol, s.getLineNumber()).readNatively();
         }
         return return_var;
+    }
+    else if (name_expr.getValue() == "Len")
+    {
+        auto args_provided = expr.getChild(1);
+        std::vector<Variable> args_to_provide;
+        for (auto a : args_provided.getChildren())
+        {
+            args_to_provide.push_back(this->evalExpr(a.getChild(0)));
+        }
+
+        return nativeLenFunction(args_to_provide, expr.getLineNumber());
     }
 
     auto args_provided = expr.getChild(1);

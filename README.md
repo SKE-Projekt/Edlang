@@ -18,13 +18,13 @@ Język edukacyjny będący częścią projektu SKE
 * Fix function calls as arguments(Prolly depth needed) [x]
 * While loop [x]
 * Arrays(actually lists, for now with simple native functions) [x]
+* Fix array operators [x]
 * (+=, -=, /= *=) []
-* Type casting with : operator []
 * Add simple tests to check if everything works []
 
 # TODO in future
 
-* Fix array operators
+* Type casting with : operator []
 * Make declarations usable in expression context []
 * Speed it up a LOT(like 5x) []
 * Rewrite it to be ~5 times smaller []
