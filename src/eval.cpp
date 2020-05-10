@@ -82,14 +82,19 @@ Variable Eval::evalLoop(Expression expr)
     }
 
     Variable return_var;
-    auto body_expr = expr.getChild(1).getChildren();
+    std::vector<Expression> body_expr = {};
+    if (expr.getChild(1).childCount())
+        body_expr = expr.getChild(1).getChildren();
 
     while (cond.getIntVal())
     {
         this->addNewScope();
-        for (int i = 0; i < body_expr.size() - 1; ++i)
+        for (int i = 0; i < expr.getChild(1).childCount() - 1; ++i)
+        {
             this->evalExpr(body_expr[i]);
-        return_var = this->evalExpr(body_expr.back());
+        }
+        if (!body_expr.empty())
+            return_var = this->evalExpr(body_expr.back());
 
         cond = this->evalExpr(cond_expr);
         if (cond.type != VariableType::INTEGER_TYPE)
@@ -98,6 +103,7 @@ Variable Eval::evalLoop(Expression expr)
         }
         this->removeLastScope();
     }
+
     return return_var;
 }
 
