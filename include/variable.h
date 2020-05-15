@@ -589,6 +589,10 @@ public:
             break;
         }
 
+        if (std::cin.fail()) {
+            throw Exception("Wczytanie z pustego wejścia", READ_FROM_EMPTY_INPUT, this->line_number);
+        }
+
         return *this;
     }
 

@@ -42,3 +42,5 @@ const int INCORRECT_TYPE = 34;
 const int LOOP_COND_NOT_FOUND = 35;
 
 const int BAD_INDEX = 36;
+
+const int READ_FROM_EMPTY_INPUT = 37;
