@@ -448,15 +448,21 @@ std::vector<Expression> Parser::getNexedExpr(TokenType DELIMITER, TokenType STAR
     while (true)
     {
         int depth = 0;
+        int depth_bracket = 0;
+
         curr_expr.clear();
 
         auto next_token = this->nextToken();
-        while ((next_token.type != DELIMITER && next_token.type != TokenType::NEXT_OPERATOR) || (depth != 0))
+        while ((next_token.type != DELIMITER && next_token.type != TokenType::NEXT_OPERATOR) || (depth != 0 || depth_bracket != 0))
         {
             if (next_token.type == STARTER)
                 ++depth;
             else if (next_token.type == DELIMITER)
                 --depth;
+            else if (next_token.type == TokenType::L_BRACKET)
+                ++depth_bracket;
+            else if (next_token.type == TokenType::R_BRACKET)
+                --depth_bracket;
 
             curr_expr.push_back(next_token);
             next_token = this->nextToken();
