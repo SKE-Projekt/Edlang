@@ -41,12 +41,18 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		if (debug)
+			std::cout << "LEXER" << std::endl;
 		Lexer lexer(source_code, debug);
 		lexer.lex();
 
+		if (debug)
+			std::cout << "PARSER" << std::endl;
 		Parser parser(lexer.getTokens(), debug);
 		parser.parse();
 
+		if (debug)
+			std::cout << "EVAL" << std::endl;
 		Eval eval(parser.getExprs(), debug);
 		eval.eval();
 	}

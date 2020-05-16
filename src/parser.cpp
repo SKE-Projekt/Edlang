@@ -592,8 +592,10 @@ Expression Parser::getParenthesisedExpression()
     std::vector<Token> parenthesised_tokens;
     while (!this->tokens.empty())
     {
+        // std::cout << "DEPTH: " << parenthesis_depth << std::endl;
         auto token = this->tokens.back();
         this->tokens.pop_back();
+        // token.printToken();
 
         if (token.type == TokenType::R_PARENTHESIS && (--parenthesis_depth == 0))
         {
@@ -612,10 +614,10 @@ Expression Parser::getParenthesisedExpression()
             ++parenthesis_depth;
             parenthesised_tokens.push_back(token);
         }
-        else if (token.type == TokenType::END_OF_STATEMENT)
-        {
-            throw Exception("Nie znaleziono zamknięcia nawiasu", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
-        }
+        // else if (token.type == TokenType::END_OF_STATEMENT)
+        // {
+        //     throw Exception("Nie znaleziono zamknięcia nawiasu", UNEXPECTED_TOKEN_IN_EXPR, token.line_number);
+        // }
         else
         {
             parenthesised_tokens.push_back(token);
@@ -677,12 +679,17 @@ Expression Parser::getIfExpression(bool is_else)
 
     int depth = 0;
     auto next_token = this->nextToken(__LINE__);
-    while (!next_token.isSymbolicValue("EndIf") && !next_token.isSymbolicValue("ElseIf") && !next_token.isSymbolicValue("Else") || (depth != 0))
+    while ((!next_token.isSymbolicValue("EndIf") && !next_token.isSymbolicValue("ElseIf") && !next_token.isSymbolicValue("Else")) || (depth != 0))
     {
         if (next_token.isSymbolicValue("If"))
             depth += 1;
-        else if (next_token.isSymbolicValue("EndIf"))
-            --depth;
+        else if (next_token.isSymbolicValue("EndIf")) {
+            if (depth > 0)
+                --depth;
+            else
+                break;
+        }
+        
         if_tokens.push_back(next_token);
         next_token = this->nextToken(__LINE__);
     }

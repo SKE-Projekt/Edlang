@@ -11,6 +11,7 @@ private:
     int line_number;
     std::string source_code;
     std::vector<Token> tokens;
+    bool last_pushed;
 
     bool debug;
 
@@ -22,6 +23,7 @@ private:
 
     void pushToken(TokenType type_v, std::string body_v)
     {
+        this->last_pushed = true;
         this->tokens.push_back(Token(type_v, body_v, this->line_number));
     }
 
@@ -33,6 +35,7 @@ public:
         this->source_code = source_code_v;
 
         this->debug = debug_v;
+        this->last_pushed = false;
     }
 
     void lex();

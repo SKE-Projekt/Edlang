@@ -95,6 +95,7 @@ std::string Lexer::parseSymbolicName()
 
 void Lexer::lex()
 {
+    bool last_whitespace = true;
     std::regex number_regex("[.0-9]");
     std::regex symbol_regex("[a-zA-Z_]");
     std::regex whitespace_regex("[ \t]");
@@ -111,78 +112,94 @@ void Lexer::lex()
         {
             this->pushToken(TokenType::END_OF_STATEMENT, ";");
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (curr_c == "\n")
         {
             this->line_number++;
             this->c_sc_pos++;
+            last_whitespace = true;
             continue;
         }
         else if (curr_c == ">" || curr_c == "<")
         {
             this->pushToken(TokenType::LOGIC_OPERATOR, curr_c);
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (std::regex_match(curr_c, whitespace_regex))
         {
             this->c_sc_pos++;
+            last_whitespace = true;
             continue;
         }
         else if (curr_c == "(")
         {
             this->pushToken(TokenType::L_PARENTHESIS, "(");
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (curr_c == ")")
         {
             this->pushToken(TokenType::R_PARENTHESIS, ")");
             this->c_sc_pos++;
+            last_whitespace = false;
         }
         else if (curr_c == "=")
         {
             this->pushToken(TokenType::ASSIGNMENT, "=");
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (curr_c == "#")
         {
             this->skipComment();
+            last_whitespace = false;
             continue;
         }
         else if (curr_c == "{")
         {
             this->pushToken(TokenType::L_BRACKET, "{");
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (curr_c == "[")
         {
             this->pushToken(TokenType::L_SQR_PARENTHESIS, "[");
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (curr_c == "]")
         {
             this->pushToken(TokenType::R_SQR_PARENTHESIS, "]");
             this->c_sc_pos++;
+            last_whitespace = false;
         }
         else if (curr_c == "}")
         {
             this->pushToken(TokenType::R_BRACKET, "}");
             this->c_sc_pos++;
+            last_whitespace = false;
         }
         else if (curr_c == ",")
         {
             this->pushToken(TokenType::NEXT_OPERATOR, ",");
             this->c_sc_pos++;
+            last_whitespace = true;
         }
         else if (curr_c == ":")
         {
             this->pushToken(TokenType::TYPE_OPERATOR, ":");
             this->c_sc_pos++;
+            last_whitespace = false;
         }
         else if (curr_c == "\"" || curr_c == "\'")
         {
             auto string_val = this->parseStringValue(curr_c);
             this->pushToken(TokenType::STRING_VALUE, string_val.second);
             this->line_number += string_val.first;
+            
+            last_whitespace = false;
         }
         else if (operators.find(curr_c) != operators.npos)
         {
@@ -192,7 +209,7 @@ void Lexer::lex()
             }
 
             auto next_token = this->source_code.substr(this->c_sc_pos + 1, 1);
-            if (std::regex_match(next_token, number_regex))
+            if (std::regex_match(next_token, number_regex) && (last_whitespace))
             {
                 this->c_sc_pos++;
                 auto val = "-" + this->parseNumericValue();
@@ -204,6 +221,8 @@ void Lexer::lex()
                 this->pushToken(TokenType::MATH_OPERATOR, curr_c);
                 this->c_sc_pos++;
             }
+            
+            last_whitespace = false;
         }
         else if (std::regex_match(curr_c, number_regex))
         {
@@ -219,17 +238,19 @@ void Lexer::lex()
             else
             {
                 this->pushToken(TokenType::SYMBOLIC_NAME, symbol);
+                // std::cout << "PUSHUJE " << symbol << std::endl;
             }
+            last_whitespace = false;
         }
         else
         {
             throw Exception("Znaleziono nierozpoznany znak (" + curr_c + ")", UNRECOGNIZED_CHAR, this->line_number);
         }
+    }
 
-        if (this->debug)
-        {
-            if (!this->tokens.empty())
-                this->tokens.back().printToken();
-        }
+    if (this->debug)
+    {
+        for (auto i : this->tokens)
+            i.printToken();
     }
 }

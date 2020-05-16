@@ -1,0 +1,8 @@
+Int k = (12 + 
+    (If (2 eq 2) 
+        7;
+    Else 
+        3;
+    EndIf));
+
+Print(k);
