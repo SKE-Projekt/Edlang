@@ -7,8 +7,10 @@ Function::Function(Expression function_expr)
         this->return_type = VariableType::INTEGER_TYPE;
     else if (type_expr.getValue() == "Float")
         this->return_type = VariableType::FLOAT_TYPE;
-    else
+    else if (type_expr.getValue() == "String")
         this->return_type = VariableType::STRING_TYPE;
+    else if (type_expr.getValue() == "List")
+        this->return_type = VariableType::LIST_TYPE;
 
     this->args_required = function_expr.getChild(2).getChildren();
 

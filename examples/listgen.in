@@ -1,0 +1,14 @@
+Function genIntList(Int dl, Int war) : List
+	List l = {};
+    
+    Int i = 0;
+    Loop(i < dl)
+    	l = l + {war};
+    	i = i + 1;
+    EndLoop
+    
+    l;
+EndFunction
+
+List k = genIntList(10, 1);
+Print(k);
