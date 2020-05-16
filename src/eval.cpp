@@ -377,6 +377,40 @@ Variable Eval::evalLogicOperatorExpression(Expression expr)
     auto l_val_expr = expr.getChild(0);
     auto r_val_expr = expr.getChild(1);
 
+     if (expr.getValue() == "and" || expr.getValue() == "or")
+    {
+        auto l_val = this->evalExpr(l_val_expr);
+        if (l_val.type != VariableType::INTEGER_TYPE)
+        {
+            throw Exception("Operator " + expr.getValue() + " może być użyty tylko w wypadku wartości całkowitych", INCORRECT_TYPE, expr.getLineNumber());
+        }
+
+        if (expr.getValue() == "and")
+        {
+            if (!l_val.getIntVal()) {
+                return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal());
+            }
+            auto r_val = this->evalExpr(r_val_expr);
+            if (l_val.type != VariableType::INTEGER_TYPE || r_val.type != VariableType::INTEGER_TYPE)
+            {
+                throw Exception("Operator " + expr.getValue() + " może być użyty tylko w wypadku wartości całkowitych", INCORRECT_TYPE, expr.getLineNumber());
+            }
+            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() && r_val.getIntVal());
+        }
+        else
+        {
+            if (l_val.getIntVal()) {
+                return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal());
+            }
+            auto r_val = this->evalExpr(r_val_expr);
+            if (l_val.type != VariableType::INTEGER_TYPE || r_val.type != VariableType::INTEGER_TYPE)
+            {
+                throw Exception("Operator " + expr.getValue() + " może być użyty tylko w wypadku wartości całkowitych", INCORRECT_TYPE, expr.getLineNumber());
+            }
+            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() || r_val.getIntVal());
+        }
+    }
+
     auto l_val = this->evalExpr(l_val_expr);
     auto r_val = this->evalExpr(r_val_expr);
 
@@ -390,22 +424,6 @@ Variable Eval::evalLogicOperatorExpression(Expression expr)
         return l_val >= r_val;
     else if (expr.getValue() == "neq")
         return l_val != r_val;
-    else if (expr.getValue() == "and" || expr.getValue() == "or")
-    {
-        if (l_val.type != VariableType::INTEGER_TYPE || r_val.type != VariableType::INTEGER_TYPE)
-        {
-            throw Exception("Operator " + expr.getValue() + " może być użyty tylko w wypadku wartości całkowitych", INCORRECT_TYPE, expr.getLineNumber());
-        }
-
-        if (expr.getValue() == "and")
-        {
-            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() && r_val.getIntVal());
-        }
-        else
-        {
-            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() || r_val.getIntVal());
-        }
-    }
     else
         return l_val == r_val;
 }

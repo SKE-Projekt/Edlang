@@ -519,6 +519,10 @@ Expression Parser::getFunctionBody()
         else if (token.isSymbolicValue("EndFunction"))
             --depth;
         function_tokens.push_back(token);
+
+        if (this->tokens.empty()) {
+            throw Exception("Brak zamknięcia ciała funkcji otwartego", BAD_FUNCTION_DECLARATION, function_tokens.front().line_number);
+        }
         token = this->nextToken(__LINE__);
     }
 
@@ -691,6 +695,10 @@ Expression Parser::getIfExpression(bool is_else)
         }
         
         if_tokens.push_back(next_token);
+        if (this->tokens.empty()) {
+            throw Exception("Brak zakończenia ciała If zaczętego w", BAD_IF_EXPR, if_tokens.front().line_number);
+        }
+
         next_token = this->nextToken(__LINE__);
     }
 

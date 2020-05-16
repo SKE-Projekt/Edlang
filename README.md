@@ -25,6 +25,7 @@ Język edukacyjny będący częścią projektu SKE
 
 # TODO in future
 
+* Fix function calls errors
 * Type casting with : operator []
 * Make declarations usable in expression context []
 * Speed it up a LOT(like 5x) []
