@@ -173,9 +173,12 @@ Variable Eval::evalFunctionCall(Expression expr)
         {
             args_to_declare.push_back({Variable(VariableType::FLOAT_TYPE, ar.getLineNumber()), ar.getChild(1).getValue()});
         }
-        else
+        else if (ar.getChild(0).getValue() == "String")
         {
             args_to_declare.push_back({Variable(VariableType::STRING_TYPE, ar.getLineNumber()), ar.getChild(1).getValue()});
+        }
+        else if (ar.getChild(0).getValue() == "List") {
+            args_to_declare.push_back({Variable(VariableType::LIST_TYPE, ar.getLineNumber()), ar.getChild(1).getValue()});
         }
     }
 
@@ -195,7 +198,7 @@ Variable Eval::evalFunctionCall(Expression expr)
     {
         if (args_to_provide[i].type != args_to_declare[i].first.type)
         {
-            throw Exception("Typ " + std::to_string(i + 1) + " argumentu nie zgadza się", BAD_FUNCTION_CALL, name_expr.getLineNumber());
+            throw Exception("Typ " + std::to_string(i + 1) + " argumentu nie zgadza się[" + VariableTypeName[args_to_provide[i].type] + ":" + VariableTypeName[args_to_declare[i].first.type] + "]", BAD_FUNCTION_CALL, name_expr.getLineNumber());
         }
 
         this->getScope().declareVariable(args_to_declare[i].second, args_to_provide[i]);
