@@ -326,7 +326,7 @@ Variable &Eval::evalIndexedVariableAssignment(Expression expr)
         auto &var_ref = var.getListValRef();
         if (var_ref.size() <= index.getIntVal())
         {
-            throw Exception("Indeks wykracza poza rozmiar listy", BAD_INDEX, index.getLineNumber());
+            throw Exception("Indeks wykracza poza rozmiar listy", BAD_INDEX, to_var.getLineNumber());
         }
         return var.getListValRef()[index.getIntVal()];
     }
