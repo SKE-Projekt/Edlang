@@ -84,7 +84,7 @@ public:
     {
     }
 
-    Variable(VariableType type_v, int line_number_v, bool defined_val_v = true, int int_val_v = -1, float float_val_v = -1, std::string string_val_v = "UNDEFINED", std::vector<Variable> list_val_v = {})
+    Variable(VariableType type_v, int line_number_v, bool defined_val_v = true, int int_val_v = -1, float float_val_v = -1, std::string string_val_v = "UNDEFINED", std::vector<Variable> list_val_v = std::vector<Variable>(0))
     {
         this->line_number = line_number_v;
 
@@ -616,16 +616,17 @@ public:
             break;
         case VariableType::LIST_TYPE:
             std::cout << "{";
-            for (int i = 0; i < this->list_val.size() - 1; ++i)
+            for (int i = 0; ((i + 1) < (list_val.size())); ++i)
             {
                 this->list_val[i].printNatively();
                 std::cout << ", ";
             }
-            if (!this->list_val.empty())
+            if (!(this->list_val.empty()))
             {
                 this->list_val.back().printNatively();
             }
             std::cout << "}";
+            break;
         }
     }
 

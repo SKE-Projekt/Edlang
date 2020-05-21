@@ -398,7 +398,9 @@ Variable Eval::evalLogicOperatorExpression(Expression expr)
             {
                 throw Exception("Operator " + expr.getValue() + " może być użyty tylko w wypadku wartości całkowitych", INCORRECT_TYPE, expr.getLineNumber());
             }
-            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, l_val.getIntVal() && r_val.getIntVal());
+            if (this->debug)
+                std::cout << "ZWRACANIE WARTOŚCI: " << l_val.getIntVal() << " : " << r_val.getIntVal() << " : " <<  (l_val.getIntVal() && r_val.getIntVal()) << std::endl;
+            return Variable(VariableType::INTEGER_TYPE, expr.getLineNumber(), true, (l_val.getIntVal() && r_val.getIntVal()));
         }
         else
         {
@@ -449,7 +451,7 @@ Variable Eval::evalIndexOperatorExpression(Expression expr)
     case VariableType::STRING_TYPE:
         if (l_val.getIntVal() >= r_val.getStringVal().size())
         {
-            throw Exception("Indeks[" + std::to_string(l_val.getIntVal()) + "] wykracza rozmiar elementu", BAD_INDEX, l_val.getLineNumber());
+            throw Exception("Indeks[" + std::to_string(l_val.getIntVal()) + "] wykracza rozmiar elementu ", BAD_INDEX, l_val.getLineNumber());
         }
         return Variable(VariableType::STRING_TYPE, r_val.getLineNumber(), true, -1, -1, r_val.getStringVal().substr(l_val.getIntVal(), 1));
         break;
@@ -514,7 +516,7 @@ Variable Eval::evalLiteralExpression(Expression expr)
     }
     else if (expr.getType() == ExpressionType::LIST_LITERAL)
     {
-        std::vector<Variable> list_val;
+        std::vector<Variable> list_val(0);
         for (auto e : expr.getChildren())
             list_val.push_back(this->evalExpr(e));
         return Variable(VariableType::LIST_TYPE, expr.getLineNumber(), true, -1, -1, "UNDEFINED", list_val);
